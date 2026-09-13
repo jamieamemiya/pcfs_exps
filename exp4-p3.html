@@ -1,0 +1,1928 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Societal Trends</title>
+    <script src="https://unpkg.com/jspsych@7.3.4"></script>
+    <script src="https://unpkg.com/@jspsych/plugin-html-keyboard-response@1.1.3"></script>
+    <script src="https://unpkg.com/@jspsych/plugin-image-keyboard-response@1.1.3"></script>
+    <script src="https://unpkg.com/@jspsych/plugin-html-button-response@1.1.3"></script>
+    <script src="https://unpkg.com/@jspsych/plugin-html-slider-response@1.1.3"></script>
+    <script src="https://unpkg.com/@jspsych/plugin-preload@1.1.3"></script>
+    <script src="https://unpkg.com/@jspsych/plugin-survey-multi-choice@1.1.3"></script>
+    <script src="https://unpkg.com/@jspsych/plugin-survey-text@1.1.3"></script>
+    <script src="https://unpkg.com/@jspsych/plugin-survey@1.0.1"></script>
+    <link rel="stylesheet" href="https://unpkg.com/@jspsych/plugin-survey@1.0.1/css/survey.css">
+    <link href="https://unpkg.com/jspsych@7.3.4/css/jspsych.css" rel="stylesheet" type="text/css" />
+    <script src="https://unpkg.com/@jspsych-contrib/plugin-pipe"></script>
+
+</head>
+
+<body></body>
+<script>
+  /* initialize jsPsych */
+  var jsPsych = initJsPsych();          
+
+  /* Capture info from Prolific */
+  var subject_id = jsPsych.data.getURLVariable('PROLIFIC_PID');
+  var study_id = jsPsych.data.getURLVariable('STUDY_ID');
+  var session_id = jsPsych.data.getURLVariable('SESSION_ID');
+
+  // If not running on Prolific (e.g., for testing locally), generate a random ID
+  if (subject_id == null) {
+    subject_id = jsPsych.randomization.randomID(10);
+    study_id = "local_test";
+    session_id = "local_test";
+  }
+
+  // Add Prolific info to every data record
+  jsPsych.data.addProperties({
+    subject_id: subject_id,
+    study_id: study_id,
+    session_id: session_id
+  });
+
+  /* Generate a filename */
+  const filename = `${subject_id}.csv`;
+
+/* Consent Form */
+var consentForm = {
+  type: jsPsychHtmlButtonResponse,
+  stimulus: `
+    <div style="text-align: left; max-width: 800px; margin: auto;">
+      <h2>OCCIDENTAL COLLEGE</h2>
+      <h3>INFORMED CONSENT FORM: ONLINE ADULT PARTICIPANTS</h3>
+      <h4>Title of Study: Thinking about Trends in Society</h4>
+      <h4>Principal Investigator: Dr. Jamie Amemiya</h4>
+      
+      <p>
+        You are invited to participate in a research study conducted by Dr. Jamie Amemiya, 
+        a faculty member in the Department of Psychology at Occidental College in Los Angeles, CA. 
+        You must be at least 18 years of age to consent to participation in this study. 
+        Please read this form and ask any questions you may have before agreeing to participate in the study.
+      </p>
+
+      <h4>PURPOSE OF STUDY</h4>
+      <p>
+        The purpose of this study is to examine how adults think about different societal trends, 
+        for example economic trends. You will be shown data on trends over time and asked about your 
+        opinions, knowledge, and overall evaluations of these trends. Your responses will be compared 
+        with other adults to understand how thinking about societal trends differs by factors such as 
+        political affiliation. 
+      </p>
+      <p>
+        De-identified data collected from this study will be used for academic publication, academic 
+        conferences, educational presentations, and may be posted publicly on data storage platforms 
+        such as Open Science Framework and GitHub. Data derived from this study may be held for future 
+        use, stored and re-analyzed, or combined with other data at a later date.
+      </p>
+
+      <h4>PROCEDURES</h4>
+      <p>
+        If you agree to be in this study, you will be asked a series of questions about societal patterns, 
+        such as economic trends. You are free to skip any questions you would like. We wish to emphasize 
+        that there are no right or wrong answers and that we appreciate your honest responses. 
+      </p>
+      <p>
+        We may collect basic demographic information, including your age, gender, political affiliation, 
+        and racial-ethnic background. Participation should take about 7 minutes. 
+        This study may contain attention checks to ensure that participants are finishing the tasks 
+        honestly and completely. As long as you read the instructions and complete the tasks, your 
+        response will be approved.
+      </p>
+
+      <h4>VOLUNTARY PARTICIPATION</h4>
+      <p>
+        Participation in this study is voluntary. You may skip any questions that you 
+        do not want to answer or stop participating at any time. You are free to withdraw from the study 
+        at any time without penalty, with no loss of benefits to which you were otherwise entitled.
+      </p>
+
+      <h4>RISKS AND BENEFITS</h4>
+      <p>
+        There are no anticipated risks or discomforts to your participation in this study other than 
+        those encountered in daily life. Although you will receive no direct benefits for participation 
+        in this study, it may make you more aware of how knowledge is discovered in psychology and help 
+        the investigator better understand how people think about societal patterns, like economic trends.
+      </p>
+
+      <h4>CONFIDENTIALITY</h4>
+      <p>
+        Your Prolific ID will be used to distribute payment to you but will not be stored with the research 
+        data we collect from you. Please be aware that your Prolific ID can potentially be linked to information about 
+        you on your Prolific public profile page, depending on the settings you have for your profile. We will not be 
+        accessing any personally identifying information about you that you may have put on your public profile page.
+      </p>
+      <p>
+        Confidentiality of your research records will be strictly maintained by de-identifying the stored 
+        data and electronically deleting identifying information. The de-identified data from the study 
+        will be kept at least until 3 years after publication. Identifiable data will never 
+        be shared outside the research team.
+      </p>
+
+      <h4>COMPENSATION</h4>
+      <p>
+        You will be compensated at a rate of <strong>$12.00/hour</strong>.
+      </p>
+
+      <h4>CONTACT INFORMATION</h4>
+      <p>
+        If you have any questions or concerns about the research, you can contact Dr. Jamie Amemiya at 
+        <a href="mailto:amemiya@oxy.edu">amemiya@oxy.edu</a>.
+      </p>
+      <p>
+        If you have any questions or concerns regarding your rights as a subject in this study, you may 
+        contact the Institutional Review Board Office at Occidental College in Los Angeles, CA, 90041 at 
+        <a href="mailto:hsrrc@oxy.edu">hsrrc@oxy.edu</a>.
+      </p>
+
+      <h4>CONSENT STATEMENT</h4>
+      <p>
+        I am at least eighteen years of age. I have read this form and the research 
+        study has been explained to me. I am fully aware of the nature and extent of my participation in 
+        this research project and the possible risks as outlined above. I understand that I may withdraw 
+        my participation in this project at any time without prejudice or penalty of any kind.
+      </p>
+      <p>
+        I hereby agree to participate in this research project.
+      </p>
+      <p>
+        <strong>Please print or save a copy of this page for your records.</strong>
+      </p>
+    </div>
+  `,
+  choices: ["I Agree", "I Do Not Agree"],
+  on_finish: function(data) {
+    if (data.response == 1) { // If "I Do Not Agree" is chosen
+      jsPsych.endExperiment("You have chosen not to participate. Thank you.");
+    }
+  }
+};
+
+
+/* Welcome / Purpose Page */
+const welcomePage = {
+  type: jsPsychHtmlButtonResponse,
+  stimulus: `<div style="width:800px; text-align:left;">
+      <h2>Welcome!</h2>
+      <p>Thank you for participating in this study. The purpose of this research is to better understand 
+      how people think about the economy.</p>
+      
+      <p>During this study, you will read about different economic performance metrics and answer some questions about your views.</p>
+      
+      <p>If you are ready to begin, please click the button below.</p>
+  </div>`,
+  choices: ['Start Study']
+};
+
+/* Labor Force Participation Introduction*/
+
+const LaborIntro = {
+    type: jsPsychHtmlButtonResponse,
+    stimulus: `<div style="width:800px;">
+        <p>The labor force participation rate measures the percentage of working-age Americans who are either employed or actively looking for work. 
+        <strong>Higher labor force participation is better</strong> because it means more people are engaged in the economy.</p>
+
+        <p>Please indicate which is better for the economy:</p>
+        <div style="margin-top: 20px; text-align: center;">
+            <label><input type="radio" name="comp_check" value="higher"> Higher labor force participation rates</label><br>
+            <label><input type="radio" name="comp_check" value="lower"> Lower labor force participation rates</label>
+        </div>
+    </div>`,
+    choices: ['Continue'],
+    button_html: '<button class="jspsych-btn" id="continue-btn" disabled>%choice%</button>',
+    on_load: function () {
+        const radios = document.getElementsByName('comp_check');
+        const continueBtn = document.getElementById('continue-btn');
+
+        radios.forEach(radio => {
+            radio.addEventListener('change', () => {
+                continueBtn.disabled = false;
+            });
+        });
+
+        // When "Continue" is clicked, save the response to jsPsych.data
+        continueBtn.addEventListener('click', () => {
+            const selected = Array.from(radios).find(r => r.checked)?.value || null;
+            jsPsych.data.get().addToLast({ comp_check: selected });
+            console.log("Saved comprehension check: ", selected);
+        });
+    }
+};
+
+
+
+/* Initial Trump Question*/
+var trump_previous_labor;  // Global variable to store Trump slider value for labor
+const startTrumpQuestionLabor = {
+    type: jsPsychHtmlButtonResponse,
+    stimulus: function () {
+        // Use previously stored value, or default to 5 if not set yet
+        trump_previous_labor = trump_previous_labor ?? 5; // ensure it's always set
+        let start_value = trump_previous_labor;
+        return `
+            <div style="width:1000px;">        
+                <p>How good do you believe <strong><span style="color:red;">Donald Trump (R)</span></strong> was for labor force participation when he was president from <strong>2017-2021</strong>?</p>
+                <div style='margin-top: 20px;'>
+                    <label for="slider">How Good Overall: <span id="slider-value">${start_value}</span></label>
+                    <div style="display: flex; justify-content: space-between; margin-top: 10px;">
+                        <span>0 = Really Bad</span>
+                        <input type="range" min="0" max="10" step="1" value="${start_value}" class="jspsych-slider" id="slider" style="width: 80%; height: 2em;">
+                        <span>10 = Really Good</span>
+                    </div>
+                </div>
+            </div>
+        `;
+    },
+    choices: ['Continue'],
+    button_html: '<button class="jspsych-btn" id="continue-btn" disabled>%choice%</button>', 
+    on_load: function () {
+        var slider = document.getElementById('slider');
+        var sliderValue = document.getElementById('slider-value');
+        var continueBtn = document.getElementById('continue-btn');
+
+        if (slider) {
+        slider.oninput = function () {
+        sliderValue.innerHTML = slider.value;
+        trump_previous_labor = Number(slider.value);
+        continueBtn.disabled = false;
+    };
+    slider.onclick = function () {
+        sliderValue.innerHTML = slider.value;
+        trump_previous_labor = Number(slider.value);
+        continueBtn.disabled = false;
+    };
+}
+    },
+    on_finish: function (data) {
+        // always assign current slider value
+        var slider = document.getElementById('slider');
+        data.slider_value_labor = slider ? Number(slider.value) : trump_previous_labor;
+        console.log("startTrump labor slider value stored: ", data.slider_value_labor);
+    }
+};
+
+
+/* Initial Biden Question */
+var previous_biden_labor;  // Global variable to store Biden slider value for labor
+
+const startBidenQuestionLabor = {
+    type: jsPsychHtmlButtonResponse,
+    stimulus: function () {
+        // Ensure previous_biden_labor is set (default = 5)
+        previous_biden_labor = previous_biden_labor ?? 5;
+        let start_value = previous_biden_labor;
+        return `
+            <div style="width:1000px;">
+                <p>How good do you believe <strong><span style="color:blue;">Joe Biden (D)</span></strong> was for labor force participation when he was president from <strong>2021-2025</strong>?</p>
+                <div style='margin-top: 20px;'>
+                    <label for="slider">How Good Overall: <span id="slider-value">${start_value}</span></label>
+                    <div style="display: flex; justify-content: space-between; margin-top: 10px;">
+                        <span>0 = Really Bad</span>
+                        <input type="range" min="0" max="10" step="1" value="${start_value}" 
+                            class="jspsych-slider" id="slider" style="width: 80%; height: 2em;">
+                        <span>10 = Really Good</span>
+                    </div>
+                </div>
+            </div>
+        `;
+    },
+    choices: ['Continue'],
+    button_html: '<button class="jspsych-btn" id="continue-btn" disabled>%choice%</button>',
+    on_load: function () {
+        var slider = document.getElementById('slider');
+        var sliderValue = document.getElementById('slider-value');
+        var continueBtn = document.getElementById('continue-btn');
+
+        if (slider) {
+            slider.oninput = function () {
+                sliderValue.innerHTML = slider.value;
+                previous_biden_labor = Number(slider.value);
+                continueBtn.disabled = false;
+            };
+            slider.onclick = function () {
+                sliderValue.innerHTML = slider.value;
+                previous_biden_labor = Number(slider.value);
+                continueBtn.disabled = false;
+            };
+        }
+    },
+    on_finish: function (data) {
+        // Always get the current slider value, even if user didn't move it
+        var slider = document.getElementById('slider');
+        data.slider_value_labor = slider ? Number(slider.value) : previous_biden_labor;
+        console.log("startBiden labor slider value stored: ", data.slider_value_labor);
+    }
+};
+
+
+
+
+/* Labor Force Participation Trump graph baseline */
+const trumpBLLabor = {
+  type: jsPsychHtmlButtonResponse,
+  stimulus: function () {
+    return `<div style="width:1000px;">
+        <p>At the beginning of <strong><span style="color:red;">Donald Trump's (R)</span></strong> presidency in 2017, 
+        the labor force participation rate was <strong>62.7%.</strong></p>
+        <p>By the end of his presidency, the labor force participation rate was <strong>61.5%.</strong></p>
+        <p>Please type the <u>starting</u> and <u>ending</u> values of the labor force participation rate during Trump's presidency in the boxes below:</p>
+        <div style="margin-top: 20px; text-align:center;">
+          <input type="number" id="trump-start" placeholder="Start value (%)" step="0.1" style="font-size: 1.2em; width: 150px; text-align: center; margin-right: 20px;">
+          <input type="number" id="trump-end" placeholder="End value (%)" step="0.1" style="font-size: 1.2em; width: 150px; text-align: center;">
+        </div>
+        <div style='margin-top: 40px;'></div>
+        <img src='img/labor_trump.png' width="auto" height=400/>
+    </div>`;
+  },
+  choices: ['Continue'],
+  button_html: '<button class="jspsych-btn" id="continue-btn" disabled>%choice%</button>',
+  on_load: function () {
+    var startInput = document.getElementById('trump-start');
+    var endInput = document.getElementById('trump-end');
+    var continueBtn = document.getElementById('continue-btn');
+
+    function checkInputs() {
+      if (startInput.value.trim() === "62.7" && endInput.value.trim() === "61.5") {
+        continueBtn.disabled = false;
+      } else {
+        continueBtn.disabled = true;
+      }
+    }
+
+    startInput.addEventListener('input', checkInputs);
+    endInput.addEventListener('input', checkInputs);
+
+    // Store current values in data on button click
+    continueBtn.addEventListener('click', function () {
+      jsPsych.data.get().addToLast({ 
+        trump_start_value_labor: Number(startInput.value),
+        trump_end_value_labor: Number(endInput.value)
+      });
+    });
+  },
+  on_finish: function (data) {
+    // Fallback in case button listener missed it
+    var startInput = document.getElementById('trump-start');
+    var endInput = document.getElementById('trump-end');
+    data.trump_start_value_labor = startInput ? Number(startInput.value) : data.trump_start_value_labor;
+    data.trump_end_value_labor = endInput ? Number(endInput.value) : data.trump_end_value_labor;
+    console.log("Trump labor values stored: ", data.trump_start_value_labor, data.trump_end_value_labor);
+  }
+};
+
+
+
+/* Labor Force Participation Biden graph baseline */
+const bidenBLLabor = {
+  type: jsPsychHtmlButtonResponse,
+  stimulus: function () {
+    return `<div style="width:1000px;">
+        <p>At the beginning of <strong><span style="color:blue;">Joe Biden's (D)</span></strong> presidency in 2021, 
+        the labor force participation rate was <strong>61.5%.</strong></p>
+        <p>By the end of his presidency, the labor force participation rate was <strong>62.5%.</strong></p>
+        <p>Please type the <u>starting</u> and <u>ending</u> values of the labor force participation rate during Biden's presidency in the boxes below:</p>
+        <div style="margin-top: 20px; text-align:center;">
+          <input type="number" id="biden-start" placeholder="Start value (%)" step="0.1" style="font-size: 1.2em; width: 150px; text-align: center; margin-right: 20px;">
+          <input type="number" id="biden-end" placeholder="End value (%)" step="0.1" style="font-size: 1.2em; width: 150px; text-align: center;">
+        </div>
+        <div style='margin-top: 40px;'></div>
+        <img src='img/labor_biden.png' width="auto" height=400/>
+    </div>`;
+  },
+  choices: ['Continue'],
+  button_html: '<button class="jspsych-btn" id="continue-btn" disabled>%choice%</button>',
+  on_load: function () {
+    var startInput = document.getElementById('biden-start');
+    var endInput = document.getElementById('biden-end');
+    var continueBtn = document.getElementById('continue-btn');
+
+    function checkInputs() {
+      if (startInput.value.trim() === "61.5" && endInput.value.trim() === "62.5") {
+        continueBtn.disabled = false;
+      } else {
+        continueBtn.disabled = true;
+      }
+    }
+
+    startInput.addEventListener('input', checkInputs);
+    endInput.addEventListener('input', checkInputs);
+
+    // Save current values when the button is clicked
+    continueBtn.addEventListener('click', function () {
+      jsPsych.data.get().addToLast({ 
+        biden_start_value_labor: Number(startInput.value),
+        biden_end_value_labor: Number(endInput.value)
+      });
+    });
+  },
+  on_finish: function (data) {
+    // Fallback in case button listener missed it
+    var startInput = document.getElementById('biden-start');
+    var endInput = document.getElementById('biden-end');
+    data.biden_start_value_labor = startInput ? Number(startInput.value) : data.biden_start_value_labor;
+    data.biden_end_value_labor = endInput ? Number(endInput.value) : data.biden_end_value_labor;
+    console.log("Biden labor values stored: ", data.biden_start_value_labor, data.biden_end_value_labor);
+  }
+};
+
+
+
+
+/* End Trump Question */
+const endTrumpQuestionLabor = {
+    type: jsPsychHtmlButtonResponse,
+    stimulus: function () {
+        // Ensure trump_previous_labor is set (default = 5)
+        trump_previous_labor = trump_previous_labor ?? 5;
+        let start_value = trump_previous_labor;
+        return `
+            <div style="width:1000px;">
+                <p>Earlier, you indicated that you believed <strong><span style="color:red;">Donald Trump (R)</span></strong> was a 
+                <strong>${start_value}</strong> for labor force participation during his presidency.</p>
+                <p>Now, how good do you believe he was for labor force participation overall?</p>
+                <div style='margin-top: 20px;'>
+                    <label for="slider">Your judgment: <span id="slider-value">${start_value}</span></label>
+                    <div style="display: flex; justify-content: space-between; margin-top: 10px;">
+                        <span>0 = Really Bad</span>
+                        <input type="range" min="0" max="10" step="1" value="${start_value}" 
+                            class="jspsych-slider" id="slider" style="width: 80%; height: 2em;">
+                        <span>10 = Really Good</span>
+                    </div>
+                </div>
+                <p style="font-size:0.9em; margin-top:10px;">
+                    (The slider is initialized at your earlier response: ${start_value})
+                </p>
+            </div>
+        `;
+    },
+    choices: ['Continue'],
+    button_html: '<button class="jspsych-btn" id="continue-btn">%choice%</button>', // enabled immediately
+    on_load: function () {
+        var slider = document.getElementById('slider');
+        var sliderValue = document.getElementById('slider-value');
+
+        if (slider) {
+            slider.oninput = function () {
+                sliderValue.innerHTML = slider.value;
+                trump_previous_labor = Number(slider.value);  // save as number
+            };
+        }
+    },
+    on_finish: function (data) {
+        // Always get current slider value, fallback to trump_previous_labor
+        var slider = document.getElementById('slider');
+        data.slider_value_labor = slider ? Number(slider.value) : trump_previous_labor;
+        console.log("endTrump labor slider value stored: ", data.slider_value_labor);
+    }
+};
+
+
+
+/* End Biden Question */
+const endBidenQuestionLabor = {
+    type: jsPsychHtmlButtonResponse,
+    stimulus: function () {
+        // Ensure previous_biden_labor is set (default = 5)
+        previous_biden_labor = previous_biden_labor ?? 5;
+        let start_value = previous_biden_labor;
+        return `
+            <div style="width:1000px;">
+                <p>Earlier, you indicated that you believed <strong><span style="color:blue;">Joe Biden (D)</span></strong> was a 
+                <strong>${start_value}</strong> for labor force participation during his presidency.</p>
+                <p>Now, how good do you believe he was for labor force participation overall?</p>
+                <div style='margin-top: 20px;'>
+                    <label for="slider">Your judgment: <span id="slider-value">${start_value}</span></label>
+                    <div style="display: flex; justify-content: space-between; margin-top: 10px;">
+                        <span>0 = Really Bad</span>
+                        <input type="range" min="0" max="10" step="1" value="${start_value}" 
+                            class="jspsych-slider" id="slider" style="width: 80%; height: 2em;">
+                        <span>10 = Really Good</span>
+                    </div>
+                </div>
+                <p style="font-size:0.9em; margin-top:10px;">
+                    (The slider is initialized at your earlier response: ${start_value})
+                </p>
+            </div>
+        `;
+    },
+    choices: ['Continue'],
+    button_html: '<button class="jspsych-btn" id="continue-btn">%choice%</button>', // enabled immediately
+    on_load: function () {
+        var slider = document.getElementById('slider');
+        var sliderValue = document.getElementById('slider-value');
+
+        if (slider) {
+            slider.oninput = function () {
+                sliderValue.innerHTML = slider.value;
+                previous_biden_labor = Number(slider.value);  // save as number
+            };
+        }
+    },
+    on_finish: function (data) {
+        // Always get current slider value, fallback to previous_biden_labor
+        var slider = document.getElementById('slider');
+        data.slider_value_labor = slider ? Number(slider.value) : previous_biden_labor;
+        console.log("endBiden labor slider value stored: ", data.slider_value_labor);
+    }
+};
+
+
+/* S&P 500 Introduction*/
+
+const SP500intro = {
+    type: jsPsychHtmlButtonResponse,
+    stimulus: `<div style="width:800px;">
+        <p>The S&P 500 is a list of the 500 leading U.S. companies, showing how well the stock market is doing
+        overall. <strong>Higher S&P is better</strong> because it means companies are doing well, which can help the
+        economy grow. </p> 
+
+        <p>Please indicate which is better for the economy:</p>
+        <div style="margin-top: 20px; text-align: center;">
+            <label><input type="radio" name="comp_check" value="higher"> Higher S&P 500 values</label><br>
+            <label><input type="radio" name="comp_check" value="lower"> Lower S&P 500 values</label>
+        </div>
+    </div>`,
+    choices: ['Continue'],
+    button_html: '<button class="jspsych-btn" id="continue-btn" disabled>%choice%</button>',
+    on_load: function () {
+        const radios = document.getElementsByName('comp_check');
+        const continueBtn = document.getElementById('continue-btn');
+
+        radios.forEach(radio => {
+            radio.addEventListener('change', () => {
+                continueBtn.disabled = false;
+            });
+        });
+
+        // When "Continue" is clicked, save the response to jsPsych.data
+        continueBtn.addEventListener('click', () => {
+            const selected = Array.from(radios).find(r => r.checked)?.value || null;
+            jsPsych.data.get().addToLast({ comp_check: selected });
+            console.log("Saved comprehension check: ", selected);
+        });
+    }
+};
+
+
+
+/* Initial Trump Question*/
+var trump_previous_sp500;  // Global variable to store Trump slider value for S&P 500
+const startTrumpQuestionSP500 = {
+    type: jsPsychHtmlButtonResponse,
+    stimulus: function () {
+        // Use previously stored value, or default to 5 if not set yet
+        trump_previous_sp500 = trump_previous_sp500 ?? 5; // ensure it's always set
+        let start_value = trump_previous_sp500;
+        return `
+            <div style="width:1000px;">        
+                <p>How good do you believe <strong><span style="color:red;">Donald Trump (R)</span></strong> was for the S&P 500 when he was president from <strong>2017-2021</strong>?</p>
+                <div style='margin-top: 20px;'>
+                    <label for="slider">How Good Overall: <span id="slider-value">${start_value}</span></label>
+                    <div style="display: flex; justify-content: space-between; margin-top: 10px;">
+                        <span>0 = Really Bad</span>
+                        <input type="range" min="0" max="10" step="1" value="${start_value}" class="jspsych-slider" id="slider" style="width: 80%; height: 2em;">
+                        <span>10 = Really Good</span>
+                    </div>
+                </div>
+            </div>
+        `;
+    },
+    choices: ['Continue'],
+    button_html: '<button class="jspsych-btn" id="continue-btn" disabled>%choice%</button>', 
+    on_load: function () {
+        var slider = document.getElementById('slider');
+        var sliderValue = document.getElementById('slider-value');
+        var continueBtn = document.getElementById('continue-btn');
+
+        if (slider) {
+            slider.oninput = function () {
+                sliderValue.innerHTML = slider.value;
+                trump_previous_sp500 = Number(slider.value);
+                continueBtn.disabled = false;
+            };
+            slider.onclick = function () {
+                sliderValue.innerHTML = slider.value;
+                trump_previous_sp500 = Number(slider.value);
+                continueBtn.disabled = false;
+            };
+        }
+    },
+    on_finish: function (data) {
+        // always assign current slider value
+        var slider = document.getElementById('slider');
+        data.slider_value_sp500 = slider ? Number(slider.value) : trump_previous_sp500;
+        console.log("startTrump SP500 slider value stored: ", data.slider_value_sp500);
+    }
+};
+
+
+/* Initial Biden Question */
+var previous_biden_sp500;  // Global variable to store Biden slider value for S&P 500
+
+const startBidenQuestionSP500 = {
+    type: jsPsychHtmlButtonResponse,
+    stimulus: function () {
+        // Ensure previous_biden_sp500 is set (default = 5)
+        previous_biden_sp500 = previous_biden_sp500 ?? 5;
+        let start_value = previous_biden_sp500;
+        return `
+            <div style="width:1000px;">
+                <p>How good do you believe <strong><span style="color:blue;">Joe Biden (D)</span></strong> was for the S&P 500 when he was president from <strong>2021-2025</strong>?</p>
+                <div style='margin-top: 20px;'>
+                    <label for="slider">How Good Overall: <span id="slider-value">${start_value}</span></label>
+                    <div style="display: flex; justify-content: space-between; margin-top: 10px;">
+                        <span>0 = Really Bad</span>
+                        <input type="range" min="0" max="10" step="1" value="${start_value}" 
+                            class="jspsych-slider" id="slider" style="width: 80%; height: 2em;">
+                        <span>10 = Really Good</span>
+                    </div>
+                </div>
+            </div>
+        `;
+    },
+    choices: ['Continue'],
+    button_html: '<button class="jspsych-btn" id="continue-btn" disabled>%choice%</button>', 
+    on_load: function () {
+        var slider = document.getElementById('slider');
+        var sliderValue = document.getElementById('slider-value');
+        var continueBtn = document.getElementById('continue-btn');
+
+        if (slider) {
+            slider.oninput = function () {
+                sliderValue.innerHTML = slider.value;
+                previous_biden_sp500 = Number(slider.value);
+                continueBtn.disabled = false;
+            };
+            slider.onclick = function () {
+                sliderValue.innerHTML = slider.value;
+                previous_biden_sp500 = Number(slider.value);
+                continueBtn.disabled = false;
+            };
+        }
+    },
+    on_finish: function (data) {
+        // Always get the current slider value, even if user didn't move it
+        var slider = document.getElementById('slider');
+        data.slider_value_sp500 = slider ? Number(slider.value) : previous_biden_sp500;
+        console.log("startBiden SP500 slider value stored: ", data.slider_value_sp500);
+    }
+};
+
+
+
+
+/* SP500 Trump graph baseline */
+const trumpBLSP500 = {
+  type: jsPsychHtmlButtonResponse,
+  stimulus: function () {
+    return `<div style="width:1000px;">
+        <p>At the beginning of <strong><span style="color:red;">Donald Trump's (R)</span></strong> presidency in 2017, 
+        the S&P 500 was <strong>2279.</strong></p>
+        <p>By the end of his presidency, the S&P 500 was <strong>3756.</strong></p>
+        <p>Please type the <u>starting</u> and <u>ending</u> values of the S&P 500 during Trump's presidency in the boxes below:</p>
+        <div style="margin-top: 20px; text-align:center;">
+          <input type="number" id="trump-start" placeholder="Start value" style="font-size: 1.2em; width: 150px; text-align: center; margin-right: 20px;">
+          <input type="number" id="trump-end" placeholder="End value" style="font-size: 1.2em; width: 150px; text-align: center;">
+        </div>
+        <div style='margin-top: 40px;'></div>
+        <img src='img/sp500_trump.png' width="auto" height=400/>
+    </div>`;
+  },
+  choices: ['Continue'],
+  button_html: '<button class="jspsych-btn" id="continue-btn" disabled>%choice%</button>',
+  on_load: function () {
+    var startInput = document.getElementById('trump-start');
+    var endInput = document.getElementById('trump-end');
+    var continueBtn = document.getElementById('continue-btn');
+
+    function checkInputs() {
+      if (startInput.value.trim() === "2279" && endInput.value.trim() === "3756") {
+        continueBtn.disabled = false;
+      } else {
+        continueBtn.disabled = true;
+      }
+    }
+
+    startInput.addEventListener('input', checkInputs);
+    endInput.addEventListener('input', checkInputs);
+
+    // Store current values in data on button click
+    continueBtn.addEventListener('click', function () {
+      jsPsych.data.get().addToLast({ 
+        trump_start_value_sp500: Number(startInput.value),
+        trump_end_value_sp500: Number(endInput.value)
+      });
+    });
+  },
+  on_finish: function (data) {
+    // Fallback in case button listener missed it
+    var startInput = document.getElementById('trump-start');
+    var endInput = document.getElementById('trump-end');
+    data.trump_start_value_sp500 = startInput ? Number(startInput.value) : data.trump_start_value_sp500;
+    data.trump_end_value_sp500 = endInput ? Number(endInput.value) : data.trump_end_value_sp500;
+    console.log("Trump SP500 values stored: ", data.trump_start_value_sp500, data.trump_end_value_sp500);
+  }
+};
+
+
+
+/* SP500 Biden graph baseline */
+const bidenBLSP500 = {
+  type: jsPsychHtmlButtonResponse,
+  stimulus: function () {
+    return `<div style="width:1000px;">
+        <p>At the beginning of <strong><span style="color:blue;">Joe Biden's (D)</span></strong> presidency in 2021, 
+        the S&P 500 was <strong>3756.</strong></p>
+        <p>By the end of his presidency, the S&P 500 was <strong>5882.</strong></p>
+        <p>Please type the <u>starting</u> and <u>ending</u> values of the S&P 500 during Biden's presidency in the boxes below:</p>
+        <div style="margin-top: 20px; text-align:center;">
+          <input type="number" id="biden-start" placeholder="Start value" style="font-size: 1.2em; width: 150px; text-align: center; margin-right: 20px;">
+          <input type="number" id="biden-end" placeholder="End value" style="font-size: 1.2em; width: 150px; text-align: center;">
+        </div>
+        <div style='margin-top: 40px;'></div>
+        <img src='img/sp500_biden.png' width="auto" height=400/>
+    </div>`;
+  },
+  choices: ['Continue'],
+  button_html: '<button class="jspsych-btn" id="continue-btn" disabled>%choice%</button>',
+  on_load: function () {
+    var startInput = document.getElementById('biden-start');
+    var endInput = document.getElementById('biden-end');
+    var continueBtn = document.getElementById('continue-btn');
+
+    function checkInputs() {
+      if (startInput.value.trim() === "3756" && endInput.value.trim() === "5882") {
+        continueBtn.disabled = false;
+      } else {
+        continueBtn.disabled = true;
+      }
+    }
+
+    startInput.addEventListener('input', checkInputs);
+    endInput.addEventListener('input', checkInputs);
+
+    // Save current values when the button is clicked
+    continueBtn.addEventListener('click', function () {
+      jsPsych.data.get().addToLast({ 
+        biden_start_value_sp500: Number(startInput.value),
+        biden_end_value_sp500: Number(endInput.value)
+      });
+    });
+  },
+  on_finish: function (data) {
+    // Fallback in case button listener missed it
+    var startInput = document.getElementById('biden-start');
+    var endInput = document.getElementById('biden-end');
+    data.biden_start_value_sp500 = startInput ? Number(startInput.value) : data.biden_start_value_sp500;
+    data.biden_end_value_sp500 = endInput ? Number(endInput.value) : data.biden_end_value_sp500;
+    console.log("Biden SP500 values stored: ", data.biden_start_value_sp500, data.biden_end_value_sp500);
+  }
+};
+
+
+
+
+
+  
+
+
+
+/* End Trump Question */
+const endTrumpQuestionSP500 = {
+    type: jsPsychHtmlButtonResponse,
+    stimulus: function () {
+        // Ensure trump_previous_sp500 is set (default = 5)
+        trump_previous_sp500 = trump_previous_sp500 ?? 5;
+        let start_value = trump_previous_sp500;
+        return `
+            <div style="width:1000px;">
+                <p>Earlier, you indicated that you believed <strong><span style="color:red;">Donald Trump (R)</span></strong> was a 
+                <strong>${start_value}</strong> for the S&P 500 during his presidency.</p>
+                <p>Now, how good do you believe he was for the S&P 500 overall?</p>
+                <div style='margin-top: 20px;'>
+                    <label for="slider">Your judgment: <span id="slider-value">${start_value}</span></label>
+                    <div style="display: flex; justify-content: space-between; margin-top: 10px;">
+                        <span>0 = Really Bad</span>
+                        <input type="range" min="0" max="10" step="1" value="${start_value}" 
+                            class="jspsych-slider" id="slider" style="width: 80%; height: 2em;">
+                        <span>10 = Really Good</span>
+                    </div>
+                </div>
+                <p style="font-size:0.9em; margin-top:10px;">
+                    (The slider is initialized at your earlier response: ${start_value})
+                </p>
+            </div>
+        `;
+    },
+    choices: ['Continue'],
+    button_html: '<button class="jspsych-btn" id="continue-btn">%choice%</button>', // enabled immediately
+    on_load: function () {
+        var slider = document.getElementById('slider');
+        var sliderValue = document.getElementById('slider-value');
+
+        if (slider) {
+            slider.oninput = function () {
+                sliderValue.innerHTML = slider.value;
+                trump_previous_sp500 = Number(slider.value);  // save as number
+            };
+        }
+    },
+    on_finish: function (data) {
+        // Always get current slider value, fallback to trump_previous_sp500
+        var slider = document.getElementById('slider');
+        data.slider_value_sp500 = slider ? Number(slider.value) : trump_previous_sp500;
+        console.log("endTrump SP500 slider value stored: ", data.slider_value_sp500);
+    }
+};
+
+
+
+/* End Biden Question */
+const endBidenQuestionSP500 = {
+    type: jsPsychHtmlButtonResponse,
+    stimulus: function () {
+        // Ensure previous_biden_sp500 is set (default = 5)
+        previous_biden_sp500 = previous_biden_sp500 ?? 5;
+        let start_value = previous_biden_sp500;
+        return `
+            <div style="width:1000px;">
+                <p>Earlier, you indicated that you believed <strong><span style="color:blue;">Joe Biden (D)</span></strong> was a 
+                <strong>${start_value}</strong> for the S&P 500 during his presidency.</p>
+                <p>Now, how good do you believe he was for the S&P 500 overall?</p>
+                <div style='margin-top: 20px;'>
+                    <label for="slider">Your judgment: <span id="slider-value">${start_value}</span></label>
+                    <div style="display: flex; justify-content: space-between; margin-top: 10px;">
+                        <span>0 = Really Bad</span>
+                        <input type="range" min="0" max="10" step="1" value="${start_value}" 
+                            class="jspsych-slider" id="slider" style="width: 80%; height: 2em;">
+                        <span>10 = Really Good</span>
+                    </div>
+                </div>
+                <p style="font-size:0.9em; margin-top:10px;">
+                    (The slider is initialized at your earlier response: ${start_value})
+                </p>
+            </div>
+        `;
+    },
+    choices: ['Continue'],
+    button_html: '<button class="jspsych-btn" id="continue-btn">%choice%</button>', // enabled immediately
+    on_load: function () {
+        var slider = document.getElementById('slider');
+        var sliderValue = document.getElementById('slider-value');
+
+        if (slider) {
+            slider.oninput = function () {
+                sliderValue.innerHTML = slider.value;
+                previous_biden_sp500 = Number(slider.value);  // save as number
+            };
+        }
+    },
+    on_finish: function (data) {
+        // Always get current slider value, fallback to previous_biden_sp500
+        var slider = document.getElementById('slider');
+        data.slider_value_sp500 = slider ? Number(slider.value) : previous_biden_sp500;
+        console.log("endBiden SP500 slider value stored: ", data.slider_value_sp500);
+    }
+};
+
+/* Inflation Rate Introduction*/
+
+const InflationIntro = {
+    type: jsPsychHtmlButtonResponse,
+    stimulus: `<div style="width:800px;">
+        <p>The inflation rate measures how quickly prices for goods and services are rising over time. 
+        <strong>Lower inflation is better</strong> because it means prices are more stable, which helps 
+        people afford what they need and maintains the purchasing power of their money.</p> 
+
+        <p>Please indicate which is better for the economy:</p>
+        <div style="margin-top: 20px; text-align: center;">
+            <label><input type="radio" name="comp_check" value="higher"> Higher inflation rates</label><br>
+            <label><input type="radio" name="comp_check" value="lower"> Lower inflation rates</label>
+        </div>
+    </div>`,
+    choices: ['Continue'],
+    button_html: '<button class="jspsych-btn" id="continue-btn" disabled>%choice%</button>',
+    on_load: function () {
+        const radios = document.getElementsByName('comp_check');
+        const continueBtn = document.getElementById('continue-btn');
+
+        radios.forEach(radio => {
+            radio.addEventListener('change', () => {
+                continueBtn.disabled = false;
+            });
+        });
+
+        // When "Continue" is clicked, save the response to jsPsych.data
+        continueBtn.addEventListener('click', () => {
+            const selected = Array.from(radios).find(r => r.checked)?.value || null;
+            jsPsych.data.get().addToLast({ comp_check: selected });
+            console.log("Saved comprehension check: ", selected);
+        });
+    }
+};
+
+
+
+/* Initial Trump Question*/
+var trump_previous_inflation;  // Global variable to store Trump slider value for inflation
+const startTrumpQuestionInflation = {
+    type: jsPsychHtmlButtonResponse,
+    stimulus: function () {
+        // Use previously stored value, or default to 5 if not set yet
+        trump_previous_inflation = trump_previous_inflation ?? 5; // ensure it's always set
+        let start_value = trump_previous_inflation;
+        return `
+            <div style="width:1000px;">        
+                <p>How good do you believe <strong><span style="color:red;">Donald Trump (R)</span></strong> was for inflation when he was president from <strong>2017-2021</strong>?</p>
+                <div style='margin-top: 20px;'>
+                    <label for="slider">How Good Overall: <span id="slider-value">${start_value}</span></label>
+                    <div style="display: flex; justify-content: space-between; margin-top: 10px;">
+                        <span>0 = Really Bad</span>
+                        <input type="range" min="0" max="10" step="1" value="${start_value}" class="jspsych-slider" id="slider" style="width: 80%; height: 2em;">
+                        <span>10 = Really Good</span>
+                    </div>
+                </div>
+            </div>
+        `;
+    },
+    choices: ['Continue'],
+    button_html: '<button class="jspsych-btn" id="continue-btn" disabled>%choice%</button>', 
+    on_load: function () {
+        var slider = document.getElementById('slider');
+        var sliderValue = document.getElementById('slider-value');
+        var continueBtn = document.getElementById('continue-btn');
+
+        if (slider) {
+            slider.oninput = function () {
+                sliderValue.innerHTML = slider.value;
+                trump_previous_inflation = Number(slider.value);
+                continueBtn.disabled = false;
+            };
+            slider.onclick = function () {
+                sliderValue.innerHTML = slider.value;
+                trump_previous_inflation = Number(slider.value);
+                continueBtn.disabled = false;
+            };
+        }
+    },
+    on_finish: function (data) {
+        // always assign current slider value
+        var slider = document.getElementById('slider');
+        data.slider_value_inflation = slider ? Number(slider.value) : trump_previous_inflation;
+        console.log("startTrump inflation slider value stored: ", data.slider_value_inflation);
+    }
+};
+
+
+/* Initial Biden Question */
+var previous_biden_inflation;  // Global variable to store Biden slider value for inflation
+
+const startBidenQuestionInflation = {
+    type: jsPsychHtmlButtonResponse,
+    stimulus: function () {
+        // Ensure previous_biden_inflation is set (default = 5)
+        previous_biden_inflation = previous_biden_inflation ?? 5;
+        let start_value = previous_biden_inflation;
+        return `
+            <div style="width:1000px;">
+                <p>How good do you believe <strong><span style="color:blue;">Joe Biden (D)</span></strong> was for inflation when he was president from <strong>2021-2025</strong>?</p>
+                <div style='margin-top: 20px;'>
+                    <label for="slider">How Good Overall: <span id="slider-value">${start_value}</span></label>
+                    <div style="display: flex; justify-content: space-between; margin-top: 10px;">
+                        <span>0 = Really Bad</span>
+                        <input type="range" min="0" max="10" step="1" value="${start_value}" 
+                            class="jspsych-slider" id="slider" style="width: 80%; height: 2em;">
+                        <span>10 = Really Good</span>
+                    </div>
+                </div>
+            </div>
+        `;
+    },
+    choices: ['Continue'],
+    button_html: '<button class="jspsych-btn" id="continue-btn" disabled>%choice%</button>', 
+    on_load: function () {
+        var slider = document.getElementById('slider');
+        var sliderValue = document.getElementById('slider-value');
+        var continueBtn = document.getElementById('continue-btn');
+
+        if (slider) {
+            slider.oninput = function () {
+                sliderValue.innerHTML = slider.value;
+                previous_biden_inflation = Number(slider.value);
+                continueBtn.disabled = false;
+            };
+            slider.onclick = function () {
+                sliderValue.innerHTML = slider.value;
+                previous_biden_inflation = Number(slider.value);
+                continueBtn.disabled = false;
+            };
+        }
+    },
+    on_finish: function (data) {
+        // Always get the current slider value, even if user didn't move it
+        var slider = document.getElementById('slider');
+        data.slider_value_inflation = slider ? Number(slider.value) : previous_biden_inflation;
+        console.log("startBiden inflation slider value stored: ", data.slider_value_inflation);
+    }
+};
+
+
+
+
+/* Inflation Rate Trump graph baseline */
+const trumpBLInflation = {
+  type: jsPsychHtmlButtonResponse,
+  stimulus: function () {
+    return `<div style="width:1000px;">
+        <p>At the beginning of <strong><span style="color:red;">Donald Trump's (R)</span></strong> presidency in 2017, 
+        the inflation rate was <strong>2.1%.</strong></p>
+        <p>By the end of his presidency, the inflation rate was <strong>1.3%.</strong></p>
+        <p>Please type the <u>starting</u> and <u>ending</u> values of the inflation rate during Trump's presidency in the boxes below:</p>
+        <div style="margin-top: 20px; text-align:center;">
+          <input type="number" id="trump-start" placeholder="Start value (%)" step="0.1" style="font-size: 1.2em; width: 150px; text-align: center; margin-right: 20px;">
+          <input type="number" id="trump-end" placeholder="End value (%)" step="0.1" style="font-size: 1.2em; width: 150px; text-align: center;">
+        </div>
+        <div style='margin-top: 40px;'></div>
+        <img src='img/inflation_trump.png' width="auto" height=400/>
+    </div>`;
+  },
+  choices: ['Continue'],
+  button_html: '<button class="jspsych-btn" id="continue-btn" disabled>%choice%</button>',
+  on_load: function () {
+    var startInput = document.getElementById('trump-start');
+    var endInput = document.getElementById('trump-end');
+    var continueBtn = document.getElementById('continue-btn');
+
+    function checkInputs() {
+      if (startInput.value.trim() === "2.1" && endInput.value.trim() === "1.3") {
+        continueBtn.disabled = false;
+      } else {
+        continueBtn.disabled = true;
+      }
+    }
+
+    startInput.addEventListener('input', checkInputs);
+    endInput.addEventListener('input', checkInputs);
+
+    // Store current values in data on button click
+    continueBtn.addEventListener('click', function () {
+      jsPsych.data.get().addToLast({ 
+        trump_start_value_inflation: Number(startInput.value),
+        trump_end_value_inflation: Number(endInput.value)
+      });
+    });
+  },
+  on_finish: function (data) {
+    // Fallback in case button listener missed it
+    var startInput = document.getElementById('trump-start');
+    var endInput = document.getElementById('trump-end');
+    data.trump_start_value_inflation = startInput ? Number(startInput.value) : data.trump_start_value_inflation;
+    data.trump_end_value_inflation = endInput ? Number(endInput.value) : data.trump_end_value_inflation;
+    console.log("Trump inflation values stored: ", data.trump_start_value_inflation, data.trump_end_value_inflation);
+  }
+};
+
+
+
+/* Inflation Rate Biden graph baseline */
+const bidenBLInflation = {
+  type: jsPsychHtmlButtonResponse,
+  stimulus: function () {
+    return `<div style="width:1000px;">
+        <p>At the beginning of <strong><span style="color:blue;">Joe Biden's (D)</span></strong> presidency in 2021, 
+        the inflation rate was <strong>1.3%.</strong></p>
+        <p>By the end of his presidency, the inflation rate was <strong>2.9%.</strong></p>
+        <p>Please type the <u>starting</u> and <u>ending</u> values of the inflation rate during Biden's presidency in the boxes below:</p>
+        <div style="margin-top: 20px; text-align:center;">
+          <input type="number" id="biden-start" placeholder="Start value (%)" step="0.1" style="font-size: 1.2em; width: 150px; text-align: center; margin-right: 20px;">
+          <input type="number" id="biden-end" placeholder="End value (%)" step="0.1" style="font-size: 1.2em; width: 150px; text-align: center;">
+        </div>
+        <div style='margin-top: 40px;'></div>
+        <img src='img/inflation_biden.png' width="auto" height=400/>
+    </div>`;
+  },
+  choices: ['Continue'],
+  button_html: '<button class="jspsych-btn" id="continue-btn" disabled>%choice%</button>',
+  on_load: function () {
+    var startInput = document.getElementById('biden-start');
+    var endInput = document.getElementById('biden-end');
+    var continueBtn = document.getElementById('continue-btn');
+
+    function checkInputs() {
+      if (startInput.value.trim() === "1.3" && endInput.value.trim() === "2.9") {
+        continueBtn.disabled = false;
+      } else {
+        continueBtn.disabled = true;
+      }
+    }
+
+    startInput.addEventListener('input', checkInputs);
+    endInput.addEventListener('input', checkInputs);
+
+    // Save current values when the button is clicked
+    continueBtn.addEventListener('click', function () {
+      jsPsych.data.get().addToLast({ 
+        biden_start_value_inflation: Number(startInput.value),
+        biden_end_value_inflation: Number(endInput.value)
+      });
+    });
+  },
+  on_finish: function (data) {
+    // Fallback in case button listener missed it
+    var startInput = document.getElementById('biden-start');
+    var endInput = document.getElementById('biden-end');
+    data.biden_start_value_inflation = startInput ? Number(startInput.value) : data.biden_start_value_inflation;
+    data.biden_end_value_inflation = endInput ? Number(endInput.value) : data.biden_end_value_inflation;
+    console.log("Biden inflation values stored: ", data.biden_start_value_inflation, data.biden_end_value_inflation);
+  }
+};
+
+
+/* End Trump Question */
+const endTrumpQuestionInflation = {
+    type: jsPsychHtmlButtonResponse,
+    stimulus: function () {
+        // Ensure trump_previous_inflation is set (default = 5)
+        trump_previous_inflation = trump_previous_inflation ?? 5;
+        let start_value = trump_previous_inflation;
+        return `
+            <div style="width:1000px;">
+                <p>Earlier, you indicated that you believed <strong><span style="color:red;">Donald Trump (R)</span></strong> was a 
+                <strong>${start_value}</strong> for inflation during his presidency.</p>
+                <p>Now, how good do you believe he was for inflation overall?</p>
+                <div style='margin-top: 20px;'>
+                    <label for="slider">Your judgment: <span id="slider-value">${start_value}</span></label>
+                    <div style="display: flex; justify-content: space-between; margin-top: 10px;">
+                        <span>0 = Really Bad</span>
+                        <input type="range" min="0" max="10" step="1" value="${start_value}" 
+                            class="jspsych-slider" id="slider" style="width: 80%; height: 2em;">
+                        <span>10 = Really Good</span>
+                    </div>
+                </div>
+                <p style="font-size:0.9em; margin-top:10px;">
+                    (The slider is initialized at your earlier response: ${start_value})
+                </p>
+            </div>
+        `;
+    },
+    choices: ['Continue'],
+    button_html: '<button class="jspsych-btn" id="continue-btn">%choice%</button>', // enabled immediately
+    on_load: function () {
+        var slider = document.getElementById('slider');
+        var sliderValue = document.getElementById('slider-value');
+
+        if (slider) {
+            slider.oninput = function () {
+                sliderValue.innerHTML = slider.value;
+                trump_previous_inflation = Number(slider.value);  // save as number
+            };
+        }
+    },
+    on_finish: function (data) {
+        // Always get current slider value, fallback to trump_previous_inflation
+        var slider = document.getElementById('slider');
+        data.slider_value_inflation = slider ? Number(slider.value) : trump_previous_inflation;
+        console.log("endTrump inflation slider value stored: ", data.slider_value_inflation);
+    }
+};
+
+
+
+/* End Biden Question */
+const endBidenQuestionInflation = {
+    type: jsPsychHtmlButtonResponse,
+    stimulus: function () {
+        // Ensure previous_biden_inflation is set (default = 5)
+        previous_biden_inflation = previous_biden_inflation ?? 5;
+        let start_value = previous_biden_inflation;
+        return `
+            <div style="width:1000px;">
+                <p>Earlier, you indicated that you believed <strong><span style="color:blue;">Joe Biden (D)</span></strong> was a 
+                <strong>${start_value}</strong> for inflation during his presidency.</p>
+                <p>Now, how good do you believe he was for inflation overall?</p>
+                <div style='margin-top: 20px;'>
+                    <label for="slider">Your judgment: <span id="slider-value">${start_value}</span></label>
+                    <div style="display: flex; justify-content: space-between; margin-top: 10px;">
+                        <span>0 = Really Bad</span>
+                        <input type="range" min="0" max="10" step="1" value="${start_value}" 
+                            class="jspsych-slider" id="slider" style="width: 80%; height: 2em;">
+                        <span>10 = Really Good</span>
+                    </div>
+                </div>
+                <p style="font-size:0.9em; margin-top:10px;">
+                    (The slider is initialized at your earlier response: ${start_value})
+                </p>
+            </div>
+        `;
+    },
+    choices: ['Continue'],
+    button_html: '<button class="jspsych-btn" id="continue-btn">%choice%</button>', // enabled immediately
+    on_load: function () {
+        var slider = document.getElementById('slider');
+        var sliderValue = document.getElementById('slider-value');
+
+        if (slider) {
+            slider.oninput = function () {
+                sliderValue.innerHTML = slider.value;
+                previous_biden_inflation = Number(slider.value);  // save as number
+            };
+        }
+    },
+    on_finish: function (data) {
+        // Always get current slider value, fallback to previous_biden_inflation
+        var slider = document.getElementById('slider');
+        data.slider_value_inflation = slider ? Number(slider.value) : previous_biden_inflation;
+        console.log("endBiden inflation slider value stored: ", data.slider_value_inflation);
+    }
+};
+
+
+
+/* National Debt Introduction*/
+
+const DebtIntro = {
+    type: jsPsychHtmlButtonResponse,
+    stimulus: `<div style="width:800px;">
+        <p>The national debt is the total amount of money the U.S. federal government owes. 
+        <strong>Lower national debt is better</strong> because high debt can increase interest costs 
+        and limit the government's ability to respond to future economic challenges.</p> 
+
+        <p>Please indicate which is better for the economy:</p>
+        <div style="margin-top: 20px; text-align: center;">
+            <label><input type="radio" name="comp_check" value="lower"> Lower national debt</label><br>
+            <label><input type="radio" name="comp_check" value="higher"> Higher national debt</label>
+        </div>
+    </div>`,
+    choices: ['Continue'],
+    button_html: '<button class="jspsych-btn" id="continue-btn" disabled>%choice%</button>',
+    on_load: function () {
+        const radios = document.getElementsByName('comp_check');
+        const continueBtn = document.getElementById('continue-btn');
+
+        radios.forEach(radio => {
+            radio.addEventListener('change', () => {
+                continueBtn.disabled = false;
+            });
+        });
+
+        // When "Continue" is clicked, save the response to jsPsych.data
+        continueBtn.addEventListener('click', () => {
+            const selected = Array.from(radios).find(r => r.checked)?.value || null;
+            jsPsych.data.get().addToLast({ comp_check: selected });
+            console.log("Saved comprehension check: ", selected);
+        });
+    }
+};
+
+
+
+/* Initial Trump Question*/
+var trump_previous_debt;  // Global variable to store Trump slider value for debt
+const startTrumpQuestionDebt = {
+    type: jsPsychHtmlButtonResponse,
+    stimulus: function () {
+        // Use previously stored value, or default to 5 if not set yet
+        trump_previous_debt = trump_previous_debt ?? 5; // ensure it's always set
+        let start_value = trump_previous_debt;
+        return `
+            <div style="width:1000px;">        
+                <p>How good do you believe <strong><span style="color:red;">Donald Trump (R)</span></strong> was for the national debt when he was president from <strong>2017-2021</strong>?</p>
+                <div style='margin-top: 20px;'>
+                    <label for="slider">How Good Overall: <span id="slider-value">${start_value}</span></label>
+                    <div style="display: flex; justify-content: space-between; margin-top: 10px;">
+                        <span>0 = Really Bad</span>
+                        <input type="range" min="0" max="10" step="1" value="${start_value}" class="jspsych-slider" id="slider" style="width: 80%; height: 2em;">
+                        <span>10 = Really Good</span>
+                    </div>
+                </div>
+            </div>
+        `;
+    },
+    choices: ['Continue'],
+    button_html: '<button class="jspsych-btn" id="continue-btn" disabled>%choice%</button>', 
+    on_load: function () {
+        var slider = document.getElementById('slider');
+        var sliderValue = document.getElementById('slider-value');
+        var continueBtn = document.getElementById('continue-btn');
+
+        if (slider) {
+            slider.oninput = function () {
+                sliderValue.innerHTML = slider.value;
+                trump_previous_debt = Number(slider.value);
+                continueBtn.disabled = false;
+            };
+            slider.onclick = function () {
+                sliderValue.innerHTML = slider.value;
+                trump_previous_debt = Number(slider.value);
+                continueBtn.disabled = false;
+            };
+        }
+    },
+    on_finish: function (data) {
+        // always assign current slider value
+        var slider = document.getElementById('slider');
+        data.slider_value_debt = slider ? Number(slider.value) : trump_previous_debt;
+        console.log("startTrump debt slider value stored: ", data.slider_value_debt);
+    }
+};
+
+
+/* Initial Biden Question */
+var previous_biden_debt;  // Global variable to store Biden slider value for debt
+
+const startBidenQuestionDebt = {
+    type: jsPsychHtmlButtonResponse,
+    stimulus: function () {
+        // Ensure previous_biden_debt is set (default = 5)
+        previous_biden_debt = previous_biden_debt ?? 5;
+        let start_value = previous_biden_debt;
+        return `
+            <div style="width:1000px;">
+                <p>How good do you believe <strong><span style="color:blue;">Joe Biden (D)</span></strong> was for the national debt when he was president from <strong>2021-2025</strong>?</p>
+                <div style='margin-top: 20px;'>
+                    <label for="slider">How Good Overall: <span id="slider-value">${start_value}</span></label>
+                    <div style="display: flex; justify-content: space-between; margin-top: 10px;">
+                        <span>0 = Really Bad</span>
+                        <input type="range" min="0" max="10" step="1" value="${start_value}" 
+                            class="jspsych-slider" id="slider" style="width: 80%; height: 2em;">
+                        <span>10 = Really Good</span>
+                    </div>
+                </div>
+            </div>
+        `;
+    },
+    choices: ['Continue'],
+    button_html: '<button class="jspsych-btn" id="continue-btn" disabled>%choice%</button>', 
+    on_load: function () {
+        var slider = document.getElementById('slider');
+        var sliderValue = document.getElementById('slider-value');
+        var continueBtn = document.getElementById('continue-btn');
+
+        if (slider) {
+            slider.oninput = function () {
+                sliderValue.innerHTML = slider.value;
+                previous_biden_debt = Number(slider.value);
+                continueBtn.disabled = false;
+            };
+            slider.onclick = function () {
+                sliderValue.innerHTML = slider.value;
+                previous_biden_debt = Number(slider.value);
+                continueBtn.disabled = false;
+            };
+        }
+    },
+    on_finish: function (data) {
+        // Always get the current slider value, even if user didn't move it
+        var slider = document.getElementById('slider');
+        data.slider_value_debt = slider ? Number(slider.value) : previous_biden_debt;
+        console.log("startBiden debt slider value stored: ", data.slider_value_debt);
+    }
+};
+
+
+
+
+/* National Debt Trump graph baseline */
+const trumpBLDebt = {
+  type: jsPsychHtmlButtonResponse,
+  stimulus: function () {
+    return `<div style="width:1000px;">
+        <p>At the beginning of <strong><span style="color:red;">Donald Trump's (R)</span></strong> presidency in 2017, 
+        the national debt was <strong>$19.85 trillion.</strong></p>
+        <p>By the end of his presidency, the national debt was <strong>$28.13 trillion.</strong></p>
+        <p>Please type the <u>starting</u> and <u>ending</u> values of the national debt during Trump's presidency in the boxes below:</p>
+        <div style="margin-top: 20px; text-align:center;">
+          <input type="number" id="trump-start" placeholder="Start value (trillions)" step="0.01" style="font-size: 1.2em; width: 150px; text-align: center; margin-right: 20px;">
+          <input type="number" id="trump-end" placeholder="End value (trillions)" step="0.01" style="font-size: 1.2em; width: 150px; text-align: center;">
+        </div>
+        <div style='margin-top: 40px;'></div>
+        <img src='img/debt_trump.png' width="auto" height=400/>
+    </div>`;
+  },
+  choices: ['Continue'],
+  button_html: '<button class="jspsych-btn" id="continue-btn" disabled>%choice%</button>',
+  on_load: function () {
+    var startInput = document.getElementById('trump-start');
+    var endInput = document.getElementById('trump-end');
+    var continueBtn = document.getElementById('continue-btn');
+
+    function checkInputs() {
+      if (startInput.value.trim() === "19.85" && endInput.value.trim() === "28.13") {
+        continueBtn.disabled = false;
+      } else {
+        continueBtn.disabled = true;
+      }
+    }
+
+    startInput.addEventListener('input', checkInputs);
+    endInput.addEventListener('input', checkInputs);
+
+    // Store current values in data on button click
+    continueBtn.addEventListener('click', function () {
+      jsPsych.data.get().addToLast({ 
+        trump_start_value_debt: Number(startInput.value),
+        trump_end_value_debt: Number(endInput.value)
+      });
+    });
+  },
+  on_finish: function (data) {
+    // Fallback in case button listener missed it
+    var startInput = document.getElementById('trump-start');
+    var endInput = document.getElementById('trump-end');
+    data.trump_start_value_debt = startInput ? Number(startInput.value) : data.trump_start_value_debt;
+    data.trump_end_value_debt = endInput ? Number(endInput.value) : data.trump_end_value_debt;
+    console.log("Trump debt values stored: ", data.trump_start_value_debt, data.trump_end_value_debt);
+  }
+};
+
+
+
+/* National Debt Biden graph baseline */
+const bidenBLDebt = {
+  type: jsPsychHtmlButtonResponse,
+  stimulus: function () {
+    return `<div style="width:1000px;">
+        <p>At the beginning of <strong><span style="color:blue;">Joe Biden's (D)</span></strong> presidency in 2021, 
+        the national debt was <strong>$28.13 trillion.</strong></p>
+        <p>By the end of his presidency, the national debt was <strong>$36.21 trillion.</strong></p>
+        <p>Please type the <u>starting</u> and <u>ending</u> values of the national debt during Biden's presidency in the boxes below:</p>
+        <div style="margin-top: 20px; text-align:center;">
+          <input type="number" id="biden-start" placeholder="Start value (trillions)" step="0.01" style="font-size: 1.2em; width: 150px; text-align: center; margin-right: 20px;">
+          <input type="number" id="biden-end" placeholder="End value (trillions)" step="0.01" style="font-size: 1.2em; width: 150px; text-align: center;">
+        </div>
+        <div style='margin-top: 40px;'></div>
+        <img src='img/debt_biden.png' width="auto" height=400/>
+    </div>`;
+  },
+  choices: ['Continue'],
+  button_html: '<button class="jspsych-btn" id="continue-btn" disabled>%choice%</button>',
+  on_load: function () {
+    var startInput = document.getElementById('biden-start');
+    var endInput = document.getElementById('biden-end');
+    var continueBtn = document.getElementById('continue-btn');
+
+    function checkInputs() {
+      if (startInput.value.trim() === "28.13" && endInput.value.trim() === "36.21") {
+        continueBtn.disabled = false;
+      } else {
+        continueBtn.disabled = true;
+      }
+    }
+
+    startInput.addEventListener('input', checkInputs);
+    endInput.addEventListener('input', checkInputs);
+
+    // Save current values when the button is clicked
+    continueBtn.addEventListener('click', function () {
+      jsPsych.data.get().addToLast({ 
+        biden_start_value_debt: Number(startInput.value),
+        biden_end_value_debt: Number(endInput.value)
+      });
+    });
+  },
+  on_finish: function (data) {
+    // Fallback in case button listener missed it
+    var startInput = document.getElementById('biden-start');
+    var endInput = document.getElementById('biden-end');
+    data.biden_start_value_debt = startInput ? Number(startInput.value) : data.biden_start_value_debt;
+    data.biden_end_value_debt = endInput ? Number(endInput.value) : data.biden_end_value_debt;
+    console.log("Biden debt values stored: ", data.biden_start_value_debt, data.biden_end_value_debt);
+  }
+};
+
+
+
+
+
+/* End Trump Question */
+const endTrumpQuestionDebt = {
+    type: jsPsychHtmlButtonResponse,
+    stimulus: function () {
+        // Ensure trump_previous_debt is set (default = 5)
+        trump_previous_debt = trump_previous_debt ?? 5;
+        let start_value = trump_previous_debt;
+        return `
+            <div style="width:1000px;">
+                <p>Earlier, you indicated that you believed <strong><span style="color:red;">Donald Trump (R)</span></strong> was a 
+                <strong>${start_value}</strong> for the national debt during his presidency.</p>
+                <p>Now, how good do you believe he was for the national debt overall?</p>
+                <div style='margin-top: 20px;'>
+                    <label for="slider">Your judgment: <span id="slider-value">${start_value}</span></label>
+                    <div style="display: flex; justify-content: space-between; margin-top: 10px;">
+                        <span>0 = Really Bad</span>
+                        <input type="range" min="0" max="10" step="1" value="${start_value}" 
+                            class="jspsych-slider" id="slider" style="width: 80%; height: 2em;">
+                        <span>10 = Really Good</span>
+                    </div>
+                </div>
+                <p style="font-size:0.9em; margin-top:10px;">
+                    (The slider is initialized at your earlier response: ${start_value})
+                </p>
+            </div>
+        `;
+    },
+    choices: ['Continue'],
+    button_html: '<button class="jspsych-btn" id="continue-btn">%choice%</button>', // enabled immediately
+    on_load: function () {
+        var slider = document.getElementById('slider');
+        var sliderValue = document.getElementById('slider-value');
+
+        if (slider) {
+            slider.oninput = function () {
+                sliderValue.innerHTML = slider.value;
+                trump_previous_debt = Number(slider.value);  // save as number
+            };
+        }
+    },
+    on_finish: function (data) {
+        // Always get current slider value, fallback to trump_previous_debt
+        var slider = document.getElementById('slider');
+        data.slider_value_debt = slider ? Number(slider.value) : trump_previous_debt;
+        console.log("endTrump debt slider value stored: ", data.slider_value_debt);
+    }
+};
+
+
+
+/* End Biden Question */
+const endBidenQuestionDebt = {
+    type: jsPsychHtmlButtonResponse,
+    stimulus: function () {
+        // Ensure previous_biden_debt is set (default = 5)
+        previous_biden_debt = previous_biden_debt ?? 5;
+        let start_value = previous_biden_debt;
+        return `
+            <div style="width:1000px;">
+                <p>Earlier, you indicated that you believed <strong><span style="color:blue;">Joe Biden (D)</span></strong> was a 
+                <strong>${start_value}</strong> for the national debt during his presidency.</p>
+                <p>Now, how good do you believe he was for the national debt overall?</p>
+                <div style='margin-top: 20px;'>
+                    <label for="slider">Your judgment: <span id="slider-value">${start_value}</span></label>
+                    <div style="display: flex; justify-content: space-between; margin-top: 10px;">
+                        <span>0 = Really Bad</span>
+                        <input type="range" min="0" max="10" step="1" value="${start_value}" 
+                            class="jspsych-slider" id="slider" style="width: 80%; height: 2em;">
+                        <span>10 = Really Good</span>
+                    </div>
+                </div>
+                <p style="font-size:0.9em; margin-top:10px;">
+                    (The slider is initialized at your earlier response: ${start_value})
+                </p>
+            </div>
+        `;
+    },
+    choices: ['Continue'],
+    button_html: '<button class="jspsych-btn" id="continue-btn">%choice%</button>', // enabled immediately
+    on_load: function () {
+        var slider = document.getElementById('slider');
+        var sliderValue = document.getElementById('slider-value');
+
+        if (slider) {
+            slider.oninput = function () {
+                sliderValue.innerHTML = slider.value;
+                previous_biden_debt = Number(slider.value);  // save as number
+            };
+        }
+    },
+    on_finish: function (data) {
+        // Always get current slider value, fallback to previous_biden_debt
+        var slider = document.getElementById('slider');
+        data.slider_value_debt = slider ? Number(slider.value) : previous_biden_debt;
+        console.log("endBiden debt slider value stored: ", data.slider_value_debt);
+    }
+};
+
+/* Demographic questionnaire */
+const endquestionnaire = {
+    type: jsPsychSurvey,
+    survey_json: {
+        elements: [
+            {
+                type: 'text',
+                title: "What is your age (in years)?",
+                name: 'age',
+                isRequired: false,
+            },
+            {
+                type: 'text',
+                title: "What gender do you identify as?",
+                name: 'gender',
+                isRequired: false,
+            },
+            {
+                type: 'text',
+                title: "What race(s) do you identify as?",
+                name: 'race',
+                isRequired: false,
+            },
+            {
+                type: 'radiogroup',
+                title: "What is your highest level of education?",
+                name: 'edu',
+                isRequired: false,
+                showOtherItem: true,
+                otherText: 'Prefer to self-describe',
+                choices: [
+                    'Less than a high school diploma',
+                    'High school diploma',
+                    "Associate's degree",
+                    "Bachelor's degree (B.A., B.S.)",
+                    "Master's degree (M.A., M.S.)",
+                    "Professional degree (M.D., Ph.D., J.D., etc.)",
+                ]
+            },
+            {
+                type: 'radiogroup',
+                title: "What is your political orientation?",
+                name: 'polorientation',
+                isRequired: false,
+                choices: [
+                    'Very liberal',
+                    'Liberal',
+                    'Slightly liberal',
+                    'Moderate/Middle of the road',
+                    'Slightly conservative',
+                    'Conservative',
+                    'Very Conservative',
+                    "Haven't thought about it much"
+                ]
+            },
+            {
+                type: 'radiogroup',
+                title: "What is your political party affiliation",
+                name: 'polpartyaff',
+                isRequired: false,
+                showOtherItem: true,
+                otherText: 'Other (please specify)',
+                choices: [
+                    'Democrat',
+                    'Republican',
+                    'Independent',
+                    'Libertarian',
+                    'Green Party',
+                    'Constitution Party',
+                ]
+            },
+            {
+                type: 'radiogroup',
+                title: "Who did you vote for in the 2024 U.S. Presidential Election?",
+                name: 'vote',
+                isRequired: false,
+                showOtherItem: true,
+                otherText: 'Other (please specify)',
+                choices: [
+                    'Kamala Harris (Democratic Party)',
+                    'Donald Trump (Republican Party)',
+                    'Chase Oliver (Libertarian Party)',
+                    'Jill Stein (Green Party)',
+                    'Did not vote'
+                ]
+            }
+        ]
+    },
+    on_load: function () {
+        // Force scroll to top when the page loads
+        window.scrollTo(0, 0);
+    },
+    on_finish: function (data) {
+        var checkResponses = function (responseKey) {
+            var response = data.response[responseKey];
+            if (!response) {
+                var leaveBlank = confirm("You left this question blank. Are you sure you want to leave it blank?");
+                if (!leaveBlank) {
+                    return false;
+                }
+            }
+            return true;
+        };
+        if (!checkResponses('age') ||
+            !checkResponses('gender') ||
+            !checkResponses('race') ||
+            !checkResponses('edu') ||
+            !checkResponses('polorientation') ||
+            !checkResponses('polpartyaff') ||
+            !checkResponses('vote')) {
+            jsPsych.endCurrentTimeline();
+            timeline.push(endquestionnaire);
+            jsPsych.run(timeline);
+        }
+    }
+};
+
+/***********************
+ * COUNTERFACTUAL RELEVANCE (Screen 4 - NEW)
+ ***********************/
+// Shown right after a candidate's data screen, before that candidate's post-evaluation.
+// oppositeParty = the party of the candidate who did NOT actually serve in that data screen,
+// i.e. the hypothetical winner in the "we should consider what would have happened..." prompt.
+// imagePath = path to the figure that was just shown on the preceding data screen,
+// so participants can reference it while answering.
+function makeCounterfactualTrial(oppositeParty, dataKey, imagePath, candidateName, goodBad, outcomeLabel) {
+  // Holds the participant's current slider value for this trial instance.
+  // We can't rely on reading the DOM in on_finish, because by the time
+  // on_finish runs, jsPsych has already cleared the display element's
+  // HTML (it does this before calling finishTrial/on_finish), so the
+  // slider element no longer exists. That was causing every response to
+  // silently fall back to the default value of 5.
+  var capturedSliderValue = null;
+
+  return {
+    type: jsPsychHtmlButtonResponse,
+    stimulus: function () {
+      return `
+        <div style="width:1000px;">
+            <img src="${imagePath}" width="auto" height="400">
+            <p style="margin-top:20px;">Someone says: "Based on this data, it seems like ${candidateName} was pretty ${goodBad} for ${outcomeLabel}."</p>
+            <p>A <u>second</u> person says: "Well, before saying ${candidateName} was ${goodBad}, we should consider what would have happened had the ${oppositeParty} candidate won."</p>
+            <div style='margin-top: 20px;'>
+                <label for="slider">How much do you agree with the <u>second</u> person? <span id="slider-value"></span></label>
+                <div style="display: flex; justify-content: space-between; margin-top: 10px;">
+                    <span>0 = Not at all</span>
+                    <input type="range" min="0" max="10" step="1" value="5" class="jspsych-slider" id="slider" style="width: 80%; height: 2em;">
+                    <span>10 = Very much</span>
+                </div>
+            </div>
+        </div>
+      `;
+    },
+    choices: ['Continue'],
+    button_html: '<button class="jspsych-btn" id="continue-btn" disabled>%choice%</button>',
+    on_load: function () {
+      var slider = document.getElementById('slider');
+      var sliderValue = document.getElementById('slider-value');
+      var continueBtn = document.getElementById('continue-btn');
+
+      // Reset for this presentation of the trial, and initialize to the
+      // slider's starting value in case a participant clicks Continue
+      // without interacting with the slider at all (still reflects reality
+      // rather than silently defaulting elsewhere).
+      capturedSliderValue = slider ? Number(slider.value) : null;
+
+      if (slider) {
+        slider.oninput = function () {
+          sliderValue.innerHTML = slider.value;
+          continueBtn.disabled = false;
+          capturedSliderValue = Number(slider.value);
+        };
+        slider.onclick = function () {
+          sliderValue.innerHTML = slider.value;
+          continueBtn.disabled = false;
+          capturedSliderValue = Number(slider.value);
+        };
+      }
+    },
+    on_finish: function (data) {
+      // NOTE: by the time on_finish runs, the plugin has already cleared the
+      // display element, so document.getElementById('slider') returns null
+      // here. We must rely on the value captured during on_load's event
+      // listeners (above) instead of querying the DOM in on_finish.
+      data['counterfactual_relevance_' + dataKey] = capturedSliderValue !== null ? capturedSliderValue : 5;
+      console.log("Counterfactual relevance (" + dataKey + ") stored: ", data['counterfactual_relevance_' + dataKey]);
+    }
+  };
+}
+
+const trumpCounterfactualSP500 = makeCounterfactualTrial('Democratic', 'trump_sp500', 'img/sp500_trump.png', 'Trump', 'good', 'the S&P 500');
+const bidenCounterfactualSP500 = makeCounterfactualTrial('Republican', 'biden_sp500', 'img/sp500_biden.png', 'Biden', 'good', 'the S&P 500');
+
+const trumpCounterfactualLabor = makeCounterfactualTrial('Democratic', 'trump_labor', 'img/labor_trump.png', 'Trump', 'bad', 'labor force participation');
+const bidenCounterfactualLabor = makeCounterfactualTrial('Republican', 'biden_labor', 'img/labor_biden.png', 'Biden', 'good', 'labor force participation');
+
+const trumpCounterfactualInflation = makeCounterfactualTrial('Democratic', 'trump_inflation', 'img/inflation_trump.png', 'Trump', 'good', 'inflation');
+const bidenCounterfactualInflation = makeCounterfactualTrial('Republican', 'biden_inflation', 'img/inflation_biden.png', 'Biden', 'bad', 'inflation');
+
+const trumpCounterfactualDebt = makeCounterfactualTrial('Democratic', 'trump_debt', 'img/debt_trump.png', 'Trump', 'bad', 'the national debt');
+const bidenCounterfactualDebt = makeCounterfactualTrial('Republican', 'biden_debt', 'img/debt_biden.png', 'Biden', 'bad', 'the national debt');
+
+/***********************
+ * INDICATOR BLOCKS
+ ***********************/
+
+// SP500 – baseline
+var sp500_block = [
+  SP500intro,
+  startTrumpQuestionSP500,
+  startBidenQuestionSP500,
+  trumpBLSP500,
+  trumpCounterfactualSP500,
+  endTrumpQuestionSP500,
+  bidenBLSP500,
+  bidenCounterfactualSP500,
+  endBidenQuestionSP500
+];
+
+// Labor – baseline
+var labor_block = [
+  LaborIntro,
+  startTrumpQuestionLabor,
+  startBidenQuestionLabor,
+  trumpBLLabor,
+  trumpCounterfactualLabor,
+  endTrumpQuestionLabor,
+  bidenBLLabor,
+  bidenCounterfactualLabor,
+  endBidenQuestionLabor
+];
+
+// Inflation – baseline
+var inflation_block = [
+  InflationIntro,
+  startTrumpQuestionInflation,
+  startBidenQuestionInflation,
+  trumpBLInflation,
+  trumpCounterfactualInflation,
+  endTrumpQuestionInflation,
+  bidenBLInflation,
+  bidenCounterfactualInflation,
+  endBidenQuestionInflation
+];
+
+// Debt – baseline
+var debt_block = [
+  DebtIntro,
+  startTrumpQuestionDebt,
+  startBidenQuestionDebt,
+  trumpBLDebt,
+  trumpCounterfactualDebt,
+  endTrumpQuestionDebt,
+  bidenBLDebt,
+  bidenCounterfactualDebt,
+  endBidenQuestionDebt
+];
+
+/***********************
+ * RANDOMIZE INDICATOR ORDER (ONCE)
+ ***********************/
+// This creates ONE random order that will be used for both conditions
+var indicatorOrder = jsPsych.randomization.shuffle(['sp500', 'labor', 'inflation', 'debt']);
+
+// Store the indicator order in the data
+jsPsych.data.addProperties({
+    indicator_order: indicatorOrder.join(',')
+});
+
+/***********************
+ * HELPER FUNCTION
+ ***********************/
+function addIndicatorBlocksInOrder(timeline, blockMap) {
+  indicatorOrder.forEach(function(indicator) {
+    timeline.push(...blockMap[indicator]);
+  });
+}
+
+/***********************
+ * CONDITION 1 – BASELINE
+ ***********************/
+var cond1_timeline = [
+  consentForm,
+  welcomePage
+];
+
+addIndicatorBlocksInOrder(cond1_timeline, {
+  'sp500': sp500_block,
+  'labor': labor_block,
+  'inflation': inflation_block,
+  'debt': debt_block
+});
+
+cond1_timeline.push(endquestionnaire);
+
+/***********************
+ *  SELECT BASELINE CONDITION
+ ***********************/
+
+var selectedTimeline = cond1_timeline;
+
+// Define the condition
+var condition = "baseline";
+
+// Store the condition in jsPsych's data
+jsPsych.data.addProperties({
+    condition: condition
+});
+
+/***********************
+ * RUN EXPERIMENT
+ ***********************/
+
+// Save data at the end of the experiment (make sure to update experiment_id)
+const save_data = {
+  type: jsPsychPipe,
+  action: "save",
+  experiment_id: "QTAYQ4zeOapF",
+  filename: filename,
+  data_string: () => jsPsych.data.get().csv(),
+  on_finish: function() {
+    window.location = "https://app.prolific.co/submissions/complete?cc=C1KY2KUR";
+  }
+};
+// Add save_data to the timeline so it runs at the end
+selectedTimeline.push(save_data);
+
+// Run the selected timeline
+   jsPsych.run(selectedTimeline);
+
+</script>
+
+</html>
