@@ -3,25 +3,46 @@
 
 <head>
     <title>Societal Trends</title>
-    <script src="https://unpkg.com/jspsych@7.3.4"></script>
-    <script src="https://unpkg.com/@jspsych/plugin-html-keyboard-response@1.1.3"></script>
-    <script src="https://unpkg.com/@jspsych/plugin-image-keyboard-response@1.1.3"></script>
-    <script src="https://unpkg.com/@jspsych/plugin-html-button-response@1.1.3"></script>
-    <script src="https://unpkg.com/@jspsych/plugin-html-slider-response@1.1.3"></script>
-    <script src="https://unpkg.com/@jspsych/plugin-preload@1.1.3"></script>
-    <script src="https://unpkg.com/@jspsych/plugin-survey-multi-choice@1.1.3"></script>
-    <script src="https://unpkg.com/@jspsych/plugin-survey-text@1.1.3"></script>
-    <script src="https://unpkg.com/@jspsych/plugin-survey@1.0.1"></script>
-    <link rel="stylesheet" href="https://unpkg.com/@jspsych/plugin-survey@1.0.1/css/survey.css">
-    <link href="https://unpkg.com/jspsych@7.3.4/css/jspsych.css" rel="stylesheet" type="text/css" />
-    <script src="https://unpkg.com/@jspsych-contrib/plugin-pipe"></script>
+    <script src="https://unpkg.com/jspsych@8.3.0"></script>
+    <script src="https://unpkg.com/@jspsych/plugin-html-keyboard-response@2.2.0"></script>
+    <script src="https://unpkg.com/@jspsych/plugin-image-keyboard-response@2.2.0"></script>
+    <script src="https://unpkg.com/@jspsych/plugin-html-button-response@2.1.0"></script>
+    <script src="https://unpkg.com/@jspsych/plugin-html-slider-response@2.1.0"></script>
+    <script src="https://unpkg.com/@jspsych/plugin-preload@2.1.0"></script>
+    <script src="https://unpkg.com/@jspsych/plugin-survey-multi-choice@2.2.1"></script>
+    <script src="https://unpkg.com/@jspsych/plugin-survey-text@2.1.1"></script>
+    <script src="https://unpkg.com/@jspsych/plugin-survey@4.0.0"></script>
+    <link rel="stylesheet" href="https://unpkg.com/@jspsych/plugin-survey@4.0.0/css/survey.css">
+    <link href="https://unpkg.com/jspsych@8.3.0/css/jspsych.css" rel="stylesheet" type="text/css" />
+    <!-- DataPipe extension: saves data to DataPipe (forwarded to Zenodo) -->
+    <script src="https://unpkg.com/@jspsych/extension-pipe@0.2.0"></script>
 
 </head>
 
 <body></body>
 <script>
+  var participantConsented = false;
+
   /* initialize jsPsych */
-  var jsPsych = initJsPsych();          
+  var jsPsych = initJsPsych({
+    // Send participants back to Prolific once the final upload has finished
+    // (only if they consented; non-consenters keep the end message instead)
+    on_finish: function () {
+      if (participantConsented) {
+        window.location = "https://app.prolific.co/submissions/complete?cc=C1KY2KUR";
+      }
+    },
+    extensions: [
+      {
+        type: jsPsychExtensionPipe,
+        params: {
+          experiment_id: "6yVqpSRneQ9s",
+          filename: () => `${subject_id}.csv`,
+          done_message: "<p>Returning you to Prolific. Please do not close this page.</p>"
+        }
+      }
+    ]
+  });
 
   /* Capture info from Prolific */
   var subject_id = jsPsych.data.getURLVariable('PROLIFIC_PID');
@@ -42,8 +63,6 @@
     session_id: session_id
   });
 
-  /* Generate a filename */
-  const filename = `${subject_id}.csv`;
 
 /* Consent Form */
 var consentForm = {
@@ -153,8 +172,9 @@ var consentForm = {
   `,
   choices: ["I Agree", "I Do Not Agree"],
   on_finish: function(data) {
+    participantConsented = (data.response == 0);
     if (data.response == 1) { // If "I Do Not Agree" is chosen
-      jsPsych.endExperiment("You have chosen not to participate. Thank you.");
+      jsPsych.abortExperiment("You have chosen not to participate. Thank you.");
     }
   }
 };
@@ -175,6 +195,12 @@ const welcomePage = {
   choices: ['Start Study']
 };
 
+// Holds the current comprehension-check answer and baseline-entry values.
+// on_finish runs after the trial's display is cleared, so values are captured
+// while the participant responds and written to the data in on_finish.
+var compCheckResponse = null;
+var baselineEntry = { start: null, end: null };
+
 /* Labor Force Participation Introduction*/
 
 const LaborIntro = {
@@ -190,23 +216,23 @@ const LaborIntro = {
         </div>
     </div>`,
     choices: ['Continue'],
-    button_html: '<button class="jspsych-btn" id="continue-btn" disabled>%choice%</button>',
+    button_html: (choice) => `<button class="jspsych-btn" id="continue-btn" disabled>${choice}</button>`,
     on_load: function () {
         const radios = document.getElementsByName('comp_check');
         const continueBtn = document.getElementById('continue-btn');
 
+        compCheckResponse = null;
+
         radios.forEach(radio => {
             radio.addEventListener('change', () => {
+                compCheckResponse = radio.value;
                 continueBtn.disabled = false;
             });
         });
-
-        // When "Continue" is clicked, save the response to jsPsych.data
-        continueBtn.addEventListener('click', () => {
-            const selected = Array.from(radios).find(r => r.checked)?.value || null;
-            jsPsych.data.get().addToLast({ comp_check: selected });
-            console.log("Saved comprehension check: ", selected);
-        });
+    },
+    on_finish: function (data) {
+        data.comp_check = compCheckResponse;
+        console.log("Saved comprehension check: ", compCheckResponse);
     }
 };
 
@@ -234,7 +260,7 @@ const startTrumpQuestionLabor = {
         `;
     },
     choices: ['Continue'],
-    button_html: '<button class="jspsych-btn" id="continue-btn" disabled>%choice%</button>', 
+    button_html: (choice) => `<button class="jspsych-btn" id="continue-btn" disabled>${choice}</button>`, 
     on_load: function () {
         var slider = document.getElementById('slider');
         var sliderValue = document.getElementById('slider-value');
@@ -287,7 +313,7 @@ const startBidenQuestionLabor = {
         `;
     },
     choices: ['Continue'],
-    button_html: '<button class="jspsych-btn" id="continue-btn" disabled>%choice%</button>',
+    button_html: (choice) => `<button class="jspsych-btn" id="continue-btn" disabled>${choice}</button>`,
     on_load: function () {
         var slider = document.getElementById('slider');
         var sliderValue = document.getElementById('slider-value');
@@ -333,13 +359,16 @@ const trumpBLLabor = {
     </div>`;
   },
   choices: ['Continue'],
-  button_html: '<button class="jspsych-btn" id="continue-btn" disabled>%choice%</button>',
+  button_html: (choice) => `<button class="jspsych-btn" id="continue-btn" disabled>${choice}</button>`,
   on_load: function () {
     var startInput = document.getElementById('trump-start');
     var endInput = document.getElementById('trump-end');
     var continueBtn = document.getElementById('continue-btn');
 
+    baselineEntry = { start: null, end: null };
+
     function checkInputs() {
+      baselineEntry = { start: Number(startInput.value), end: Number(endInput.value) };
       if (startInput.value.trim() === "62.7" && endInput.value.trim() === "61.5") {
         continueBtn.disabled = false;
       } else {
@@ -350,20 +379,10 @@ const trumpBLLabor = {
     startInput.addEventListener('input', checkInputs);
     endInput.addEventListener('input', checkInputs);
 
-    // Store current values in data on button click
-    continueBtn.addEventListener('click', function () {
-      jsPsych.data.get().addToLast({ 
-        trump_start_value_labor: Number(startInput.value),
-        trump_end_value_labor: Number(endInput.value)
-      });
-    });
   },
   on_finish: function (data) {
-    // Fallback in case button listener missed it
-    var startInput = document.getElementById('trump-start');
-    var endInput = document.getElementById('trump-end');
-    data.trump_start_value_labor = startInput ? Number(startInput.value) : data.trump_start_value_labor;
-    data.trump_end_value_labor = endInput ? Number(endInput.value) : data.trump_end_value_labor;
+    data.trump_start_value_labor = baselineEntry.start;
+    data.trump_end_value_labor = baselineEntry.end;
     console.log("Trump labor values stored: ", data.trump_start_value_labor, data.trump_end_value_labor);
   }
 };
@@ -387,13 +406,16 @@ const bidenBLLabor = {
     </div>`;
   },
   choices: ['Continue'],
-  button_html: '<button class="jspsych-btn" id="continue-btn" disabled>%choice%</button>',
+  button_html: (choice) => `<button class="jspsych-btn" id="continue-btn" disabled>${choice}</button>`,
   on_load: function () {
     var startInput = document.getElementById('biden-start');
     var endInput = document.getElementById('biden-end');
     var continueBtn = document.getElementById('continue-btn');
 
+    baselineEntry = { start: null, end: null };
+
     function checkInputs() {
+      baselineEntry = { start: Number(startInput.value), end: Number(endInput.value) };
       if (startInput.value.trim() === "61.5" && endInput.value.trim() === "62.5") {
         continueBtn.disabled = false;
       } else {
@@ -404,20 +426,10 @@ const bidenBLLabor = {
     startInput.addEventListener('input', checkInputs);
     endInput.addEventListener('input', checkInputs);
 
-    // Save current values when the button is clicked
-    continueBtn.addEventListener('click', function () {
-      jsPsych.data.get().addToLast({ 
-        biden_start_value_labor: Number(startInput.value),
-        biden_end_value_labor: Number(endInput.value)
-      });
-    });
   },
   on_finish: function (data) {
-    // Fallback in case button listener missed it
-    var startInput = document.getElementById('biden-start');
-    var endInput = document.getElementById('biden-end');
-    data.biden_start_value_labor = startInput ? Number(startInput.value) : data.biden_start_value_labor;
-    data.biden_end_value_labor = endInput ? Number(endInput.value) : data.biden_end_value_labor;
+    data.biden_start_value_labor = baselineEntry.start;
+    data.biden_end_value_labor = baselineEntry.end;
     console.log("Biden labor values stored: ", data.biden_start_value_labor, data.biden_end_value_labor);
   }
 };
@@ -439,23 +451,23 @@ const SP500intro = {
         </div>
     </div>`,
     choices: ['Continue'],
-    button_html: '<button class="jspsych-btn" id="continue-btn" disabled>%choice%</button>',
+    button_html: (choice) => `<button class="jspsych-btn" id="continue-btn" disabled>${choice}</button>`,
     on_load: function () {
         const radios = document.getElementsByName('comp_check');
         const continueBtn = document.getElementById('continue-btn');
 
+        compCheckResponse = null;
+
         radios.forEach(radio => {
             radio.addEventListener('change', () => {
+                compCheckResponse = radio.value;
                 continueBtn.disabled = false;
             });
         });
-
-        // When "Continue" is clicked, save the response to jsPsych.data
-        continueBtn.addEventListener('click', () => {
-            const selected = Array.from(radios).find(r => r.checked)?.value || null;
-            jsPsych.data.get().addToLast({ comp_check: selected });
-            console.log("Saved comprehension check: ", selected);
-        });
+    },
+    on_finish: function (data) {
+        data.comp_check = compCheckResponse;
+        console.log("Saved comprehension check: ", compCheckResponse);
     }
 };
 
@@ -483,7 +495,7 @@ const startTrumpQuestionSP500 = {
         `;
     },
     choices: ['Continue'],
-    button_html: '<button class="jspsych-btn" id="continue-btn" disabled>%choice%</button>', 
+    button_html: (choice) => `<button class="jspsych-btn" id="continue-btn" disabled>${choice}</button>`, 
     on_load: function () {
         var slider = document.getElementById('slider');
         var sliderValue = document.getElementById('slider-value');
@@ -536,7 +548,7 @@ const startBidenQuestionSP500 = {
         `;
     },
     choices: ['Continue'],
-    button_html: '<button class="jspsych-btn" id="continue-btn" disabled>%choice%</button>', 
+    button_html: (choice) => `<button class="jspsych-btn" id="continue-btn" disabled>${choice}</button>`, 
     on_load: function () {
         var slider = document.getElementById('slider');
         var sliderValue = document.getElementById('slider-value');
@@ -582,13 +594,16 @@ const trumpBLSP500 = {
     </div>`;
   },
   choices: ['Continue'],
-  button_html: '<button class="jspsych-btn" id="continue-btn" disabled>%choice%</button>',
+  button_html: (choice) => `<button class="jspsych-btn" id="continue-btn" disabled>${choice}</button>`,
   on_load: function () {
     var startInput = document.getElementById('trump-start');
     var endInput = document.getElementById('trump-end');
     var continueBtn = document.getElementById('continue-btn');
 
+    baselineEntry = { start: null, end: null };
+
     function checkInputs() {
+      baselineEntry = { start: Number(startInput.value), end: Number(endInput.value) };
       if (startInput.value.trim() === "2279" && endInput.value.trim() === "3756") {
         continueBtn.disabled = false;
       } else {
@@ -599,20 +614,10 @@ const trumpBLSP500 = {
     startInput.addEventListener('input', checkInputs);
     endInput.addEventListener('input', checkInputs);
 
-    // Store current values in data on button click
-    continueBtn.addEventListener('click', function () {
-      jsPsych.data.get().addToLast({ 
-        trump_start_value_sp500: Number(startInput.value),
-        trump_end_value_sp500: Number(endInput.value)
-      });
-    });
   },
   on_finish: function (data) {
-    // Fallback in case button listener missed it
-    var startInput = document.getElementById('trump-start');
-    var endInput = document.getElementById('trump-end');
-    data.trump_start_value_sp500 = startInput ? Number(startInput.value) : data.trump_start_value_sp500;
-    data.trump_end_value_sp500 = endInput ? Number(endInput.value) : data.trump_end_value_sp500;
+    data.trump_start_value_sp500 = baselineEntry.start;
+    data.trump_end_value_sp500 = baselineEntry.end;
     console.log("Trump SP500 values stored: ", data.trump_start_value_sp500, data.trump_end_value_sp500);
   }
 };
@@ -636,13 +641,16 @@ const bidenBLSP500 = {
     </div>`;
   },
   choices: ['Continue'],
-  button_html: '<button class="jspsych-btn" id="continue-btn" disabled>%choice%</button>',
+  button_html: (choice) => `<button class="jspsych-btn" id="continue-btn" disabled>${choice}</button>`,
   on_load: function () {
     var startInput = document.getElementById('biden-start');
     var endInput = document.getElementById('biden-end');
     var continueBtn = document.getElementById('continue-btn');
 
+    baselineEntry = { start: null, end: null };
+
     function checkInputs() {
+      baselineEntry = { start: Number(startInput.value), end: Number(endInput.value) };
       if (startInput.value.trim() === "3756" && endInput.value.trim() === "5882") {
         continueBtn.disabled = false;
       } else {
@@ -653,20 +661,10 @@ const bidenBLSP500 = {
     startInput.addEventListener('input', checkInputs);
     endInput.addEventListener('input', checkInputs);
 
-    // Save current values when the button is clicked
-    continueBtn.addEventListener('click', function () {
-      jsPsych.data.get().addToLast({ 
-        biden_start_value_sp500: Number(startInput.value),
-        biden_end_value_sp500: Number(endInput.value)
-      });
-    });
   },
   on_finish: function (data) {
-    // Fallback in case button listener missed it
-    var startInput = document.getElementById('biden-start');
-    var endInput = document.getElementById('biden-end');
-    data.biden_start_value_sp500 = startInput ? Number(startInput.value) : data.biden_start_value_sp500;
-    data.biden_end_value_sp500 = endInput ? Number(endInput.value) : data.biden_end_value_sp500;
+    data.biden_start_value_sp500 = baselineEntry.start;
+    data.biden_end_value_sp500 = baselineEntry.end;
     console.log("Biden SP500 values stored: ", data.biden_start_value_sp500, data.biden_end_value_sp500);
   }
 };
@@ -691,23 +689,23 @@ const InflationIntro = {
         </div>
     </div>`,
     choices: ['Continue'],
-    button_html: '<button class="jspsych-btn" id="continue-btn" disabled>%choice%</button>',
+    button_html: (choice) => `<button class="jspsych-btn" id="continue-btn" disabled>${choice}</button>`,
     on_load: function () {
         const radios = document.getElementsByName('comp_check');
         const continueBtn = document.getElementById('continue-btn');
 
+        compCheckResponse = null;
+
         radios.forEach(radio => {
             radio.addEventListener('change', () => {
+                compCheckResponse = radio.value;
                 continueBtn.disabled = false;
             });
         });
-
-        // When "Continue" is clicked, save the response to jsPsych.data
-        continueBtn.addEventListener('click', () => {
-            const selected = Array.from(radios).find(r => r.checked)?.value || null;
-            jsPsych.data.get().addToLast({ comp_check: selected });
-            console.log("Saved comprehension check: ", selected);
-        });
+    },
+    on_finish: function (data) {
+        data.comp_check = compCheckResponse;
+        console.log("Saved comprehension check: ", compCheckResponse);
     }
 };
 
@@ -735,7 +733,7 @@ const startTrumpQuestionInflation = {
         `;
     },
     choices: ['Continue'],
-    button_html: '<button class="jspsych-btn" id="continue-btn" disabled>%choice%</button>', 
+    button_html: (choice) => `<button class="jspsych-btn" id="continue-btn" disabled>${choice}</button>`, 
     on_load: function () {
         var slider = document.getElementById('slider');
         var sliderValue = document.getElementById('slider-value');
@@ -788,7 +786,7 @@ const startBidenQuestionInflation = {
         `;
     },
     choices: ['Continue'],
-    button_html: '<button class="jspsych-btn" id="continue-btn" disabled>%choice%</button>', 
+    button_html: (choice) => `<button class="jspsych-btn" id="continue-btn" disabled>${choice}</button>`, 
     on_load: function () {
         var slider = document.getElementById('slider');
         var sliderValue = document.getElementById('slider-value');
@@ -834,13 +832,16 @@ const trumpBLInflation = {
     </div>`;
   },
   choices: ['Continue'],
-  button_html: '<button class="jspsych-btn" id="continue-btn" disabled>%choice%</button>',
+  button_html: (choice) => `<button class="jspsych-btn" id="continue-btn" disabled>${choice}</button>`,
   on_load: function () {
     var startInput = document.getElementById('trump-start');
     var endInput = document.getElementById('trump-end');
     var continueBtn = document.getElementById('continue-btn');
 
+    baselineEntry = { start: null, end: null };
+
     function checkInputs() {
+      baselineEntry = { start: Number(startInput.value), end: Number(endInput.value) };
       if (startInput.value.trim() === "2.1" && endInput.value.trim() === "1.3") {
         continueBtn.disabled = false;
       } else {
@@ -851,20 +852,10 @@ const trumpBLInflation = {
     startInput.addEventListener('input', checkInputs);
     endInput.addEventListener('input', checkInputs);
 
-    // Store current values in data on button click
-    continueBtn.addEventListener('click', function () {
-      jsPsych.data.get().addToLast({ 
-        trump_start_value_inflation: Number(startInput.value),
-        trump_end_value_inflation: Number(endInput.value)
-      });
-    });
   },
   on_finish: function (data) {
-    // Fallback in case button listener missed it
-    var startInput = document.getElementById('trump-start');
-    var endInput = document.getElementById('trump-end');
-    data.trump_start_value_inflation = startInput ? Number(startInput.value) : data.trump_start_value_inflation;
-    data.trump_end_value_inflation = endInput ? Number(endInput.value) : data.trump_end_value_inflation;
+    data.trump_start_value_inflation = baselineEntry.start;
+    data.trump_end_value_inflation = baselineEntry.end;
     console.log("Trump inflation values stored: ", data.trump_start_value_inflation, data.trump_end_value_inflation);
   }
 };
@@ -888,13 +879,16 @@ const bidenBLInflation = {
     </div>`;
   },
   choices: ['Continue'],
-  button_html: '<button class="jspsych-btn" id="continue-btn" disabled>%choice%</button>',
+  button_html: (choice) => `<button class="jspsych-btn" id="continue-btn" disabled>${choice}</button>`,
   on_load: function () {
     var startInput = document.getElementById('biden-start');
     var endInput = document.getElementById('biden-end');
     var continueBtn = document.getElementById('continue-btn');
 
+    baselineEntry = { start: null, end: null };
+
     function checkInputs() {
+      baselineEntry = { start: Number(startInput.value), end: Number(endInput.value) };
       if (startInput.value.trim() === "1.3" && endInput.value.trim() === "2.9") {
         continueBtn.disabled = false;
       } else {
@@ -905,20 +899,10 @@ const bidenBLInflation = {
     startInput.addEventListener('input', checkInputs);
     endInput.addEventListener('input', checkInputs);
 
-    // Save current values when the button is clicked
-    continueBtn.addEventListener('click', function () {
-      jsPsych.data.get().addToLast({ 
-        biden_start_value_inflation: Number(startInput.value),
-        biden_end_value_inflation: Number(endInput.value)
-      });
-    });
   },
   on_finish: function (data) {
-    // Fallback in case button listener missed it
-    var startInput = document.getElementById('biden-start');
-    var endInput = document.getElementById('biden-end');
-    data.biden_start_value_inflation = startInput ? Number(startInput.value) : data.biden_start_value_inflation;
-    data.biden_end_value_inflation = endInput ? Number(endInput.value) : data.biden_end_value_inflation;
+    data.biden_start_value_inflation = baselineEntry.start;
+    data.biden_end_value_inflation = baselineEntry.end;
     console.log("Biden inflation values stored: ", data.biden_start_value_inflation, data.biden_end_value_inflation);
   }
 };
@@ -940,23 +924,23 @@ const DebtIntro = {
         </div>
     </div>`,
     choices: ['Continue'],
-    button_html: '<button class="jspsych-btn" id="continue-btn" disabled>%choice%</button>',
+    button_html: (choice) => `<button class="jspsych-btn" id="continue-btn" disabled>${choice}</button>`,
     on_load: function () {
         const radios = document.getElementsByName('comp_check');
         const continueBtn = document.getElementById('continue-btn');
 
+        compCheckResponse = null;
+
         radios.forEach(radio => {
             radio.addEventListener('change', () => {
+                compCheckResponse = radio.value;
                 continueBtn.disabled = false;
             });
         });
-
-        // When "Continue" is clicked, save the response to jsPsych.data
-        continueBtn.addEventListener('click', () => {
-            const selected = Array.from(radios).find(r => r.checked)?.value || null;
-            jsPsych.data.get().addToLast({ comp_check: selected });
-            console.log("Saved comprehension check: ", selected);
-        });
+    },
+    on_finish: function (data) {
+        data.comp_check = compCheckResponse;
+        console.log("Saved comprehension check: ", compCheckResponse);
     }
 };
 
@@ -984,7 +968,7 @@ const startTrumpQuestionDebt = {
         `;
     },
     choices: ['Continue'],
-    button_html: '<button class="jspsych-btn" id="continue-btn" disabled>%choice%</button>', 
+    button_html: (choice) => `<button class="jspsych-btn" id="continue-btn" disabled>${choice}</button>`, 
     on_load: function () {
         var slider = document.getElementById('slider');
         var sliderValue = document.getElementById('slider-value');
@@ -1037,7 +1021,7 @@ const startBidenQuestionDebt = {
         `;
     },
     choices: ['Continue'],
-    button_html: '<button class="jspsych-btn" id="continue-btn" disabled>%choice%</button>', 
+    button_html: (choice) => `<button class="jspsych-btn" id="continue-btn" disabled>${choice}</button>`, 
     on_load: function () {
         var slider = document.getElementById('slider');
         var sliderValue = document.getElementById('slider-value');
@@ -1083,13 +1067,16 @@ const trumpBLDebt = {
     </div>`;
   },
   choices: ['Continue'],
-  button_html: '<button class="jspsych-btn" id="continue-btn" disabled>%choice%</button>',
+  button_html: (choice) => `<button class="jspsych-btn" id="continue-btn" disabled>${choice}</button>`,
   on_load: function () {
     var startInput = document.getElementById('trump-start');
     var endInput = document.getElementById('trump-end');
     var continueBtn = document.getElementById('continue-btn');
 
+    baselineEntry = { start: null, end: null };
+
     function checkInputs() {
+      baselineEntry = { start: Number(startInput.value), end: Number(endInput.value) };
       if (startInput.value.trim() === "19.85" && endInput.value.trim() === "28.13") {
         continueBtn.disabled = false;
       } else {
@@ -1100,20 +1087,10 @@ const trumpBLDebt = {
     startInput.addEventListener('input', checkInputs);
     endInput.addEventListener('input', checkInputs);
 
-    // Store current values in data on button click
-    continueBtn.addEventListener('click', function () {
-      jsPsych.data.get().addToLast({ 
-        trump_start_value_debt: Number(startInput.value),
-        trump_end_value_debt: Number(endInput.value)
-      });
-    });
   },
   on_finish: function (data) {
-    // Fallback in case button listener missed it
-    var startInput = document.getElementById('trump-start');
-    var endInput = document.getElementById('trump-end');
-    data.trump_start_value_debt = startInput ? Number(startInput.value) : data.trump_start_value_debt;
-    data.trump_end_value_debt = endInput ? Number(endInput.value) : data.trump_end_value_debt;
+    data.trump_start_value_debt = baselineEntry.start;
+    data.trump_end_value_debt = baselineEntry.end;
     console.log("Trump debt values stored: ", data.trump_start_value_debt, data.trump_end_value_debt);
   }
 };
@@ -1137,13 +1114,16 @@ const bidenBLDebt = {
     </div>`;
   },
   choices: ['Continue'],
-  button_html: '<button class="jspsych-btn" id="continue-btn" disabled>%choice%</button>',
+  button_html: (choice) => `<button class="jspsych-btn" id="continue-btn" disabled>${choice}</button>`,
   on_load: function () {
     var startInput = document.getElementById('biden-start');
     var endInput = document.getElementById('biden-end');
     var continueBtn = document.getElementById('continue-btn');
 
+    baselineEntry = { start: null, end: null };
+
     function checkInputs() {
+      baselineEntry = { start: Number(startInput.value), end: Number(endInput.value) };
       if (startInput.value.trim() === "28.13" && endInput.value.trim() === "36.21") {
         continueBtn.disabled = false;
       } else {
@@ -1154,20 +1134,10 @@ const bidenBLDebt = {
     startInput.addEventListener('input', checkInputs);
     endInput.addEventListener('input', checkInputs);
 
-    // Save current values when the button is clicked
-    continueBtn.addEventListener('click', function () {
-      jsPsych.data.get().addToLast({ 
-        biden_start_value_debt: Number(startInput.value),
-        biden_end_value_debt: Number(endInput.value)
-      });
-    });
   },
   on_finish: function (data) {
-    // Fallback in case button listener missed it
-    var startInput = document.getElementById('biden-start');
-    var endInput = document.getElementById('biden-end');
-    data.biden_start_value_debt = startInput ? Number(startInput.value) : data.biden_start_value_debt;
-    data.biden_end_value_debt = endInput ? Number(endInput.value) : data.biden_end_value_debt;
+    data.biden_start_value_debt = baselineEntry.start;
+    data.biden_end_value_debt = baselineEntry.end;
     console.log("Biden debt values stored: ", data.biden_start_value_debt, data.biden_end_value_debt);
   }
 };
@@ -1276,17 +1246,21 @@ const endquestionnaire = {
             }
             return true;
         };
-        if (!checkResponses('age') ||
-            !checkResponses('gender') ||
-            !checkResponses('race') ||
-            !checkResponses('edu') ||
-            !checkResponses('polorientation') ||
-            !checkResponses('polpartyaff') ||
-            !checkResponses('vote')) {
-            jsPsych.endCurrentTimeline();
-            timeline.push(endquestionnaire);
-            jsPsych.run(timeline);
-        }
+        // If the participant cancels any "leave blank?" prompt, the survey is shown again
+        data.blank_confirmed = checkResponses('age') &&
+            checkResponses('gender') &&
+            checkResponses('race') &&
+            checkResponses('edu') &&
+            checkResponses('polorientation') &&
+            checkResponses('polpartyaff') &&
+            checkResponses('vote');
+    }
+};
+
+const endquestionnaireLoop = {
+    timeline: [endquestionnaire],
+    loop_function: function (data) {
+        return !data.values()[0].blank_confirmed;
     }
 };
 
@@ -1327,7 +1301,7 @@ function makeCounterfactualTrial(oppositeParty, dataKey, imagePath, candidateNam
       `;
     },
     choices: ['Continue'],
-    button_html: '<button class="jspsych-btn" id="continue-btn" disabled>%choice%</button>',
+    button_html: (choice) => `<button class="jspsych-btn" id="continue-btn" disabled>${choice}</button>`,
     on_load: function () {
       var slider = document.getElementById('slider');
       var sliderValue = document.getElementById('slider-value');
@@ -1458,7 +1432,7 @@ addIndicatorBlocksInOrder(cond1_timeline, {
   'debt': debt_block
 });
 
-cond1_timeline.push(endquestionnaire);
+cond1_timeline.push(endquestionnaireLoop);
 
 /***********************
  *  SELECT BASELINE CONDITION
@@ -1478,19 +1452,7 @@ jsPsych.data.addProperties({
  * RUN EXPERIMENT
  ***********************/
 
-// Save data at the end of the experiment (make sure to update experiment_id)
-const save_data = {
-  type: jsPsychPipe,
-  action: "save",
-  experiment_id: "qy3QuNsi0wyi",
-  filename: filename,
-  data_string: () => jsPsych.data.get().csv(),
-  on_finish: function() {
-    window.location = "https://app.prolific.co/submissions/complete?cc=C1KY2KUR";
-  }
-};
-// Add save_data to the timeline so it runs at the end
-selectedTimeline.push(save_data);
+// Data is saved automatically by the DataPipe extension (see initJsPsych above).
 
 // Run the selected timeline
    jsPsych.run(selectedTimeline);
