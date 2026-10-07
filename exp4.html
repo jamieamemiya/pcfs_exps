@@ -1,4 +1,4 @@
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html>
 
 <head>
@@ -211,7 +211,6 @@ const LaborIntro = {
 };
 
 
-
 /* Initial Trump Question*/
 var trump_previous_labor;  // Global variable to store Trump slider value for labor
 const startTrumpQuestionLabor = {
@@ -316,8 +315,6 @@ const startBidenQuestionLabor = {
 };
 
 
-
-
 /* Labor Force Participation Trump graph baseline */
 const trumpBLLabor = {
   type: jsPsychHtmlButtonResponse,
@@ -370,7 +367,6 @@ const trumpBLLabor = {
     console.log("Trump labor values stored: ", data.trump_start_value_labor, data.trump_end_value_labor);
   }
 };
-
 
 
 /* Labor Force Participation Biden graph baseline */
@@ -427,107 +423,6 @@ const bidenBLLabor = {
 };
 
 
-
-
-/* End Trump Question */
-const endTrumpQuestionLabor = {
-    type: jsPsychHtmlButtonResponse,
-    stimulus: function () {
-        // Ensure trump_previous_labor is set (default = 5)
-        trump_previous_labor = trump_previous_labor ?? 5;
-        let start_value = trump_previous_labor;
-        return `
-            <div style="width:1000px;">
-                <p>Earlier, you indicated that you believed <strong><span style="color:red;">Donald Trump (R)</span></strong> was a 
-                <strong>${start_value}</strong> for labor force participation during his presidency.</p>
-                <p>Now, how good do you believe he was for labor force participation overall?</p>
-                <div style='margin-top: 20px;'>
-                    <label for="slider">Your judgment: <span id="slider-value">${start_value}</span></label>
-                    <div style="display: flex; justify-content: space-between; margin-top: 10px;">
-                        <span>0 = Really Bad</span>
-                        <input type="range" min="0" max="10" step="1" value="${start_value}" 
-                            class="jspsych-slider" id="slider" style="width: 80%; height: 2em;">
-                        <span>10 = Really Good</span>
-                    </div>
-                </div>
-                <p style="font-size:0.9em; margin-top:10px;">
-                    (The slider is initialized at your earlier response: ${start_value})
-                </p>
-            </div>
-        `;
-    },
-    choices: ['Continue'],
-    button_html: '<button class="jspsych-btn" id="continue-btn">%choice%</button>', // enabled immediately
-    on_load: function () {
-        var slider = document.getElementById('slider');
-        var sliderValue = document.getElementById('slider-value');
-
-        if (slider) {
-            slider.oninput = function () {
-                sliderValue.innerHTML = slider.value;
-                trump_previous_labor = Number(slider.value);  // save as number
-            };
-        }
-    },
-    on_finish: function (data) {
-        // Always get current slider value, fallback to trump_previous_labor
-        var slider = document.getElementById('slider');
-        data.slider_value_labor = slider ? Number(slider.value) : trump_previous_labor;
-        console.log("endTrump labor slider value stored: ", data.slider_value_labor);
-    }
-};
-
-
-
-/* End Biden Question */
-const endBidenQuestionLabor = {
-    type: jsPsychHtmlButtonResponse,
-    stimulus: function () {
-        // Ensure previous_biden_labor is set (default = 5)
-        previous_biden_labor = previous_biden_labor ?? 5;
-        let start_value = previous_biden_labor;
-        return `
-            <div style="width:1000px;">
-                <p>Earlier, you indicated that you believed <strong><span style="color:blue;">Joe Biden (D)</span></strong> was a 
-                <strong>${start_value}</strong> for labor force participation during his presidency.</p>
-                <p>Now, how good do you believe he was for labor force participation overall?</p>
-                <div style='margin-top: 20px;'>
-                    <label for="slider">Your judgment: <span id="slider-value">${start_value}</span></label>
-                    <div style="display: flex; justify-content: space-between; margin-top: 10px;">
-                        <span>0 = Really Bad</span>
-                        <input type="range" min="0" max="10" step="1" value="${start_value}" 
-                            class="jspsych-slider" id="slider" style="width: 80%; height: 2em;">
-                        <span>10 = Really Good</span>
-                    </div>
-                </div>
-                <p style="font-size:0.9em; margin-top:10px;">
-                    (The slider is initialized at your earlier response: ${start_value})
-                </p>
-            </div>
-        `;
-    },
-    choices: ['Continue'],
-    button_html: '<button class="jspsych-btn" id="continue-btn">%choice%</button>', // enabled immediately
-    on_load: function () {
-        var slider = document.getElementById('slider');
-        var sliderValue = document.getElementById('slider-value');
-
-        if (slider) {
-            slider.oninput = function () {
-                sliderValue.innerHTML = slider.value;
-                previous_biden_labor = Number(slider.value);  // save as number
-            };
-        }
-    },
-    on_finish: function (data) {
-        // Always get current slider value, fallback to previous_biden_labor
-        var slider = document.getElementById('slider');
-        data.slider_value_labor = slider ? Number(slider.value) : previous_biden_labor;
-        console.log("endBiden labor slider value stored: ", data.slider_value_labor);
-    }
-};
-
-
 /* S&P 500 Introduction*/
 
 const SP500intro = {
@@ -563,7 +458,6 @@ const SP500intro = {
         });
     }
 };
-
 
 
 /* Initial Trump Question*/
@@ -670,8 +564,6 @@ const startBidenQuestionSP500 = {
 };
 
 
-
-
 /* SP500 Trump graph baseline */
 const trumpBLSP500 = {
   type: jsPsychHtmlButtonResponse,
@@ -724,7 +616,6 @@ const trumpBLSP500 = {
     console.log("Trump SP500 values stored: ", data.trump_start_value_sp500, data.trump_end_value_sp500);
   }
 };
-
 
 
 /* SP500 Biden graph baseline */
@@ -781,110 +672,8 @@ const bidenBLSP500 = {
 };
 
 
-
-
-
   
 
-
-
-/* End Trump Question */
-const endTrumpQuestionSP500 = {
-    type: jsPsychHtmlButtonResponse,
-    stimulus: function () {
-        // Ensure trump_previous_sp500 is set (default = 5)
-        trump_previous_sp500 = trump_previous_sp500 ?? 5;
-        let start_value = trump_previous_sp500;
-        return `
-            <div style="width:1000px;">
-                <p>Earlier, you indicated that you believed <strong><span style="color:red;">Donald Trump (R)</span></strong> was a 
-                <strong>${start_value}</strong> for the S&P 500 during his presidency.</p>
-                <p>Now, how good do you believe he was for the S&P 500 overall?</p>
-                <div style='margin-top: 20px;'>
-                    <label for="slider">Your judgment: <span id="slider-value">${start_value}</span></label>
-                    <div style="display: flex; justify-content: space-between; margin-top: 10px;">
-                        <span>0 = Really Bad</span>
-                        <input type="range" min="0" max="10" step="1" value="${start_value}" 
-                            class="jspsych-slider" id="slider" style="width: 80%; height: 2em;">
-                        <span>10 = Really Good</span>
-                    </div>
-                </div>
-                <p style="font-size:0.9em; margin-top:10px;">
-                    (The slider is initialized at your earlier response: ${start_value})
-                </p>
-            </div>
-        `;
-    },
-    choices: ['Continue'],
-    button_html: '<button class="jspsych-btn" id="continue-btn">%choice%</button>', // enabled immediately
-    on_load: function () {
-        var slider = document.getElementById('slider');
-        var sliderValue = document.getElementById('slider-value');
-
-        if (slider) {
-            slider.oninput = function () {
-                sliderValue.innerHTML = slider.value;
-                trump_previous_sp500 = Number(slider.value);  // save as number
-            };
-        }
-    },
-    on_finish: function (data) {
-        // Always get current slider value, fallback to trump_previous_sp500
-        var slider = document.getElementById('slider');
-        data.slider_value_sp500 = slider ? Number(slider.value) : trump_previous_sp500;
-        console.log("endTrump SP500 slider value stored: ", data.slider_value_sp500);
-    }
-};
-
-
-
-/* End Biden Question */
-const endBidenQuestionSP500 = {
-    type: jsPsychHtmlButtonResponse,
-    stimulus: function () {
-        // Ensure previous_biden_sp500 is set (default = 5)
-        previous_biden_sp500 = previous_biden_sp500 ?? 5;
-        let start_value = previous_biden_sp500;
-        return `
-            <div style="width:1000px;">
-                <p>Earlier, you indicated that you believed <strong><span style="color:blue;">Joe Biden (D)</span></strong> was a 
-                <strong>${start_value}</strong> for the S&P 500 during his presidency.</p>
-                <p>Now, how good do you believe he was for the S&P 500 overall?</p>
-                <div style='margin-top: 20px;'>
-                    <label for="slider">Your judgment: <span id="slider-value">${start_value}</span></label>
-                    <div style="display: flex; justify-content: space-between; margin-top: 10px;">
-                        <span>0 = Really Bad</span>
-                        <input type="range" min="0" max="10" step="1" value="${start_value}" 
-                            class="jspsych-slider" id="slider" style="width: 80%; height: 2em;">
-                        <span>10 = Really Good</span>
-                    </div>
-                </div>
-                <p style="font-size:0.9em; margin-top:10px;">
-                    (The slider is initialized at your earlier response: ${start_value})
-                </p>
-            </div>
-        `;
-    },
-    choices: ['Continue'],
-    button_html: '<button class="jspsych-btn" id="continue-btn">%choice%</button>', // enabled immediately
-    on_load: function () {
-        var slider = document.getElementById('slider');
-        var sliderValue = document.getElementById('slider-value');
-
-        if (slider) {
-            slider.oninput = function () {
-                sliderValue.innerHTML = slider.value;
-                previous_biden_sp500 = Number(slider.value);  // save as number
-            };
-        }
-    },
-    on_finish: function (data) {
-        // Always get current slider value, fallback to previous_biden_sp500
-        var slider = document.getElementById('slider');
-        data.slider_value_sp500 = slider ? Number(slider.value) : previous_biden_sp500;
-        console.log("endBiden SP500 slider value stored: ", data.slider_value_sp500);
-    }
-};
 
 /* Inflation Rate Introduction*/
 
@@ -921,7 +710,6 @@ const InflationIntro = {
         });
     }
 };
-
 
 
 /* Initial Trump Question*/
@@ -1028,8 +816,6 @@ const startBidenQuestionInflation = {
 };
 
 
-
-
 /* Inflation Rate Trump graph baseline */
 const trumpBLInflation = {
   type: jsPsychHtmlButtonResponse,
@@ -1082,7 +868,6 @@ const trumpBLInflation = {
     console.log("Trump inflation values stored: ", data.trump_start_value_inflation, data.trump_end_value_inflation);
   }
 };
-
 
 
 /* Inflation Rate Biden graph baseline */
@@ -1139,106 +924,6 @@ const bidenBLInflation = {
 };
 
 
-/* End Trump Question */
-const endTrumpQuestionInflation = {
-    type: jsPsychHtmlButtonResponse,
-    stimulus: function () {
-        // Ensure trump_previous_inflation is set (default = 5)
-        trump_previous_inflation = trump_previous_inflation ?? 5;
-        let start_value = trump_previous_inflation;
-        return `
-            <div style="width:1000px;">
-                <p>Earlier, you indicated that you believed <strong><span style="color:red;">Donald Trump (R)</span></strong> was a 
-                <strong>${start_value}</strong> for inflation during his presidency.</p>
-                <p>Now, how good do you believe he was for inflation overall?</p>
-                <div style='margin-top: 20px;'>
-                    <label for="slider">Your judgment: <span id="slider-value">${start_value}</span></label>
-                    <div style="display: flex; justify-content: space-between; margin-top: 10px;">
-                        <span>0 = Really Bad</span>
-                        <input type="range" min="0" max="10" step="1" value="${start_value}" 
-                            class="jspsych-slider" id="slider" style="width: 80%; height: 2em;">
-                        <span>10 = Really Good</span>
-                    </div>
-                </div>
-                <p style="font-size:0.9em; margin-top:10px;">
-                    (The slider is initialized at your earlier response: ${start_value})
-                </p>
-            </div>
-        `;
-    },
-    choices: ['Continue'],
-    button_html: '<button class="jspsych-btn" id="continue-btn">%choice%</button>', // enabled immediately
-    on_load: function () {
-        var slider = document.getElementById('slider');
-        var sliderValue = document.getElementById('slider-value');
-
-        if (slider) {
-            slider.oninput = function () {
-                sliderValue.innerHTML = slider.value;
-                trump_previous_inflation = Number(slider.value);  // save as number
-            };
-        }
-    },
-    on_finish: function (data) {
-        // Always get current slider value, fallback to trump_previous_inflation
-        var slider = document.getElementById('slider');
-        data.slider_value_inflation = slider ? Number(slider.value) : trump_previous_inflation;
-        console.log("endTrump inflation slider value stored: ", data.slider_value_inflation);
-    }
-};
-
-
-
-/* End Biden Question */
-const endBidenQuestionInflation = {
-    type: jsPsychHtmlButtonResponse,
-    stimulus: function () {
-        // Ensure previous_biden_inflation is set (default = 5)
-        previous_biden_inflation = previous_biden_inflation ?? 5;
-        let start_value = previous_biden_inflation;
-        return `
-            <div style="width:1000px;">
-                <p>Earlier, you indicated that you believed <strong><span style="color:blue;">Joe Biden (D)</span></strong> was a 
-                <strong>${start_value}</strong> for inflation during his presidency.</p>
-                <p>Now, how good do you believe he was for inflation overall?</p>
-                <div style='margin-top: 20px;'>
-                    <label for="slider">Your judgment: <span id="slider-value">${start_value}</span></label>
-                    <div style="display: flex; justify-content: space-between; margin-top: 10px;">
-                        <span>0 = Really Bad</span>
-                        <input type="range" min="0" max="10" step="1" value="${start_value}" 
-                            class="jspsych-slider" id="slider" style="width: 80%; height: 2em;">
-                        <span>10 = Really Good</span>
-                    </div>
-                </div>
-                <p style="font-size:0.9em; margin-top:10px;">
-                    (The slider is initialized at your earlier response: ${start_value})
-                </p>
-            </div>
-        `;
-    },
-    choices: ['Continue'],
-    button_html: '<button class="jspsych-btn" id="continue-btn">%choice%</button>', // enabled immediately
-    on_load: function () {
-        var slider = document.getElementById('slider');
-        var sliderValue = document.getElementById('slider-value');
-
-        if (slider) {
-            slider.oninput = function () {
-                sliderValue.innerHTML = slider.value;
-                previous_biden_inflation = Number(slider.value);  // save as number
-            };
-        }
-    },
-    on_finish: function (data) {
-        // Always get current slider value, fallback to previous_biden_inflation
-        var slider = document.getElementById('slider');
-        data.slider_value_inflation = slider ? Number(slider.value) : previous_biden_inflation;
-        console.log("endBiden inflation slider value stored: ", data.slider_value_inflation);
-    }
-};
-
-
-
 /* National Debt Introduction*/
 
 const DebtIntro = {
@@ -1274,7 +959,6 @@ const DebtIntro = {
         });
     }
 };
-
 
 
 /* Initial Trump Question*/
@@ -1381,8 +1065,6 @@ const startBidenQuestionDebt = {
 };
 
 
-
-
 /* National Debt Trump graph baseline */
 const trumpBLDebt = {
   type: jsPsychHtmlButtonResponse,
@@ -1435,7 +1117,6 @@ const trumpBLDebt = {
     console.log("Trump debt values stored: ", data.trump_start_value_debt, data.trump_end_value_debt);
   }
 };
-
 
 
 /* National Debt Biden graph baseline */
@@ -1491,107 +1172,6 @@ const bidenBLDebt = {
   }
 };
 
-
-
-
-
-/* End Trump Question */
-const endTrumpQuestionDebt = {
-    type: jsPsychHtmlButtonResponse,
-    stimulus: function () {
-        // Ensure trump_previous_debt is set (default = 5)
-        trump_previous_debt = trump_previous_debt ?? 5;
-        let start_value = trump_previous_debt;
-        return `
-            <div style="width:1000px;">
-                <p>Earlier, you indicated that you believed <strong><span style="color:red;">Donald Trump (R)</span></strong> was a 
-                <strong>${start_value}</strong> for the national debt during his presidency.</p>
-                <p>Now, how good do you believe he was for the national debt overall?</p>
-                <div style='margin-top: 20px;'>
-                    <label for="slider">Your judgment: <span id="slider-value">${start_value}</span></label>
-                    <div style="display: flex; justify-content: space-between; margin-top: 10px;">
-                        <span>0 = Really Bad</span>
-                        <input type="range" min="0" max="10" step="1" value="${start_value}" 
-                            class="jspsych-slider" id="slider" style="width: 80%; height: 2em;">
-                        <span>10 = Really Good</span>
-                    </div>
-                </div>
-                <p style="font-size:0.9em; margin-top:10px;">
-                    (The slider is initialized at your earlier response: ${start_value})
-                </p>
-            </div>
-        `;
-    },
-    choices: ['Continue'],
-    button_html: '<button class="jspsych-btn" id="continue-btn">%choice%</button>', // enabled immediately
-    on_load: function () {
-        var slider = document.getElementById('slider');
-        var sliderValue = document.getElementById('slider-value');
-
-        if (slider) {
-            slider.oninput = function () {
-                sliderValue.innerHTML = slider.value;
-                trump_previous_debt = Number(slider.value);  // save as number
-            };
-        }
-    },
-    on_finish: function (data) {
-        // Always get current slider value, fallback to trump_previous_debt
-        var slider = document.getElementById('slider');
-        data.slider_value_debt = slider ? Number(slider.value) : trump_previous_debt;
-        console.log("endTrump debt slider value stored: ", data.slider_value_debt);
-    }
-};
-
-
-
-/* End Biden Question */
-const endBidenQuestionDebt = {
-    type: jsPsychHtmlButtonResponse,
-    stimulus: function () {
-        // Ensure previous_biden_debt is set (default = 5)
-        previous_biden_debt = previous_biden_debt ?? 5;
-        let start_value = previous_biden_debt;
-        return `
-            <div style="width:1000px;">
-                <p>Earlier, you indicated that you believed <strong><span style="color:blue;">Joe Biden (D)</span></strong> was a 
-                <strong>${start_value}</strong> for the national debt during his presidency.</p>
-                <p>Now, how good do you believe he was for the national debt overall?</p>
-                <div style='margin-top: 20px;'>
-                    <label for="slider">Your judgment: <span id="slider-value">${start_value}</span></label>
-                    <div style="display: flex; justify-content: space-between; margin-top: 10px;">
-                        <span>0 = Really Bad</span>
-                        <input type="range" min="0" max="10" step="1" value="${start_value}" 
-                            class="jspsych-slider" id="slider" style="width: 80%; height: 2em;">
-                        <span>10 = Really Good</span>
-                    </div>
-                </div>
-                <p style="font-size:0.9em; margin-top:10px;">
-                    (The slider is initialized at your earlier response: ${start_value})
-                </p>
-            </div>
-        `;
-    },
-    choices: ['Continue'],
-    button_html: '<button class="jspsych-btn" id="continue-btn">%choice%</button>', // enabled immediately
-    on_load: function () {
-        var slider = document.getElementById('slider');
-        var sliderValue = document.getElementById('slider-value');
-
-        if (slider) {
-            slider.oninput = function () {
-                sliderValue.innerHTML = slider.value;
-                previous_biden_debt = Number(slider.value);  // save as number
-            };
-        }
-    },
-    on_finish: function (data) {
-        // Always get current slider value, fallback to previous_biden_debt
-        var slider = document.getElementById('slider');
-        data.slider_value_debt = slider ? Number(slider.value) : previous_biden_debt;
-        console.log("endBiden debt slider value stored: ", data.slider_value_debt);
-    }
-};
 
 /* Demographic questionnaire */
 const endquestionnaire = {
@@ -1713,12 +1293,12 @@ const endquestionnaire = {
 /***********************
  * COUNTERFACTUAL RELEVANCE (Screen 4 - NEW)
  ***********************/
-// Shown right after a candidate's data screen, before that candidate's post-evaluation.
+// Shown right after a candidate's data screen, before moving on.
 // oppositeParty = the party of the candidate who did NOT actually serve in that data screen,
-// i.e. the hypothetical winner in the "I wonder what would have happened..." prompt.
+// i.e. the hypothetical winner in the "we should consider what would have happened..." prompt.
 // imagePath = path to the figure that was just shown on the preceding data screen,
 // so participants can reference it while answering.
-function makeCounterfactualTrial(oppositeParty, dataKey, imagePath) {
+function makeCounterfactualTrial(oppositeParty, dataKey, imagePath, candidateName, goodBad, outcomeLabel) {
   // Holds the participant's current slider value for this trial instance.
   // We can't rely on reading the DOM in on_finish, because by the time
   // on_finish runs, jsPsych has already cleared the display element's
@@ -1733,13 +1313,14 @@ function makeCounterfactualTrial(oppositeParty, dataKey, imagePath) {
       return `
         <div style="width:1000px;">
             <img src="${imagePath}" width="auto" height="400">
-            <p style="margin-top:20px;">After seeing the data, someone says, "I wonder what would have happened had the <strong>${oppositeParty}</strong> candidate won."</p>
+            <p style="margin-top:20px;">Someone says: "Based on this data, it seems like ${candidateName} was pretty ${goodBad} for ${outcomeLabel}."</p>
+            <p>A <u>second</u> person says: "Well, before saying ${candidateName} was ${goodBad}, we should consider what would have happened had the ${oppositeParty} candidate won."</p>
             <div style='margin-top: 20px;'>
-                <label for="slider">How relevant is this thought? <span id="slider-value"></span></label>
+                <label for="slider">How much do you agree with the <u>second</u> person? <span id="slider-value"></span></label>
                 <div style="display: flex; justify-content: space-between; margin-top: 10px;">
-                    <span>0 = Highly Irrelevant</span>
+                    <span>0 = Not at all</span>
                     <input type="range" min="0" max="10" step="1" value="5" class="jspsych-slider" id="slider" style="width: 80%; height: 2em;">
-                    <span>10 = Highly Relevant</span>
+                    <span>10 = Very much</span>
                 </div>
             </div>
         </div>
@@ -1782,17 +1363,17 @@ function makeCounterfactualTrial(oppositeParty, dataKey, imagePath) {
   };
 }
 
-const trumpCounterfactualSP500 = makeCounterfactualTrial('Democratic', 'trump_sp500', 'img/sp500_trump.png');
-const bidenCounterfactualSP500 = makeCounterfactualTrial('Republican', 'biden_sp500', 'img/sp500_biden.png');
+const trumpCounterfactualSP500 = makeCounterfactualTrial('Democratic', 'trump_sp500', 'img/sp500_trump.png', 'Trump', 'good', 'the S&P 500');
+const bidenCounterfactualSP500 = makeCounterfactualTrial('Republican', 'biden_sp500', 'img/sp500_biden.png', 'Biden', 'good', 'the S&P 500');
 
-const trumpCounterfactualLabor = makeCounterfactualTrial('Democratic', 'trump_labor', 'img/labor_trump.png');
-const bidenCounterfactualLabor = makeCounterfactualTrial('Republican', 'biden_labor', 'img/labor_biden.png');
+const trumpCounterfactualLabor = makeCounterfactualTrial('Democratic', 'trump_labor', 'img/labor_trump.png', 'Trump', 'bad', 'labor force participation');
+const bidenCounterfactualLabor = makeCounterfactualTrial('Republican', 'biden_labor', 'img/labor_biden.png', 'Biden', 'good', 'labor force participation');
 
-const trumpCounterfactualInflation = makeCounterfactualTrial('Democratic', 'trump_inflation', 'img/inflation_trump.png');
-const bidenCounterfactualInflation = makeCounterfactualTrial('Republican', 'biden_inflation', 'img/inflation_biden.png');
+const trumpCounterfactualInflation = makeCounterfactualTrial('Democratic', 'trump_inflation', 'img/inflation_trump.png', 'Trump', 'good', 'inflation');
+const bidenCounterfactualInflation = makeCounterfactualTrial('Republican', 'biden_inflation', 'img/inflation_biden.png', 'Biden', 'bad', 'inflation');
 
-const trumpCounterfactualDebt = makeCounterfactualTrial('Democratic', 'trump_debt', 'img/debt_trump.png');
-const bidenCounterfactualDebt = makeCounterfactualTrial('Republican', 'biden_debt', 'img/debt_biden.png');
+const trumpCounterfactualDebt = makeCounterfactualTrial('Democratic', 'trump_debt', 'img/debt_trump.png', 'Trump', 'bad', 'the national debt');
+const bidenCounterfactualDebt = makeCounterfactualTrial('Republican', 'biden_debt', 'img/debt_biden.png', 'Biden', 'bad', 'the national debt');
 
 /***********************
  * INDICATOR BLOCKS
@@ -1805,10 +1386,8 @@ var sp500_block = [
   startBidenQuestionSP500,
   trumpBLSP500,
   trumpCounterfactualSP500,
-  endTrumpQuestionSP500,
   bidenBLSP500,
-  bidenCounterfactualSP500,
-  endBidenQuestionSP500
+  bidenCounterfactualSP500
 ];
 
 // Labor – baseline
@@ -1818,10 +1397,8 @@ var labor_block = [
   startBidenQuestionLabor,
   trumpBLLabor,
   trumpCounterfactualLabor,
-  endTrumpQuestionLabor,
   bidenBLLabor,
-  bidenCounterfactualLabor,
-  endBidenQuestionLabor
+  bidenCounterfactualLabor
 ];
 
 // Inflation – baseline
@@ -1831,10 +1408,8 @@ var inflation_block = [
   startBidenQuestionInflation,
   trumpBLInflation,
   trumpCounterfactualInflation,
-  endTrumpQuestionInflation,
   bidenBLInflation,
-  bidenCounterfactualInflation,
-  endBidenQuestionInflation
+  bidenCounterfactualInflation
 ];
 
 // Debt – baseline
@@ -1844,10 +1419,8 @@ var debt_block = [
   startBidenQuestionDebt,
   trumpBLDebt,
   trumpCounterfactualDebt,
-  endTrumpQuestionDebt,
   bidenBLDebt,
-  bidenCounterfactualDebt,
-  endBidenQuestionDebt
+  bidenCounterfactualDebt
 ];
 
 /***********************
@@ -1909,7 +1482,7 @@ jsPsych.data.addProperties({
 const save_data = {
   type: jsPsychPipe,
   action: "save",
-  experiment_id: "0IlyTubYzKJx",
+  experiment_id: "qy3QuNsi0wyi",
   filename: filename,
   data_string: () => jsPsych.data.get().csv(),
   on_finish: function() {
